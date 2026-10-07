@@ -1,0 +1,3712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Jabra Floorwalk Checklist</title>
+
+  <!-- PWA: Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- PWA: Theme & status bar colour -->
+  <meta name="theme-color" content="#0062ff">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- iOS PWA support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Jabra Floorwalk">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <style>
+    :root {
+      --primary: #0062ff;
+      --primary-hover: #0050d0;
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --info: #0dcaf0;
+      --dark: #1f2328;
+      --light-bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --border: #dee2e6;
+      --text-muted: #6c757d;
+      --gsheet-green: #0f9d58;
+      --settings-accent: #7c3aed;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--light-bg);
+      color: var(--dark);
+      line-height: 1.5;
+      /* Safe area insets for Android notch / gesture navigation bar */
+      padding-bottom: max(60px, env(safe-area-inset-bottom));
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    /* Header */
+    header {
+      background:
+        linear-gradient(135deg, rgba(16, 24, 40, 0.82) 0%, rgba(30, 41, 59, 0.82) 100%),
+        url('image.jpg') center / cover no-repeat;
+      color: #ffffff;
+      padding: 1rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      background-color: #ffcc00;
+      color: #000;
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-title h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .brand-version {
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: #94a3b8;
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 4px;
+      padding: 0.1rem 0.35rem;
+      vertical-align: middle;
+      margin-left: 0.4rem;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-title p {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* Google Sheets Sync Pill */
+    .gsheet-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      background: rgba(15, 157, 88, 0.2);
+      color: #ffffff;
+      border: 1px solid rgba(15, 157, 88, 0.5);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .gsheet-pill:hover {
+      background: rgba(15, 157, 88, 0.35);
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+    }
+    .sync-dot.busy {
+      background: #38bdf8;
+      animation: pulseDot 1s infinite;
+    }
+    .sync-dot.offline {
+      background: #f59e0b;
+      box-shadow: none;
+    }
+
+    @keyframes pulseDot {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    /* Navigation Tabs */
+    .tabs-nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 0.85rem 1rem;
+      border: none;
+      background: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .badge-count {
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1300px;
+      margin: 1.25rem auto;
+      padding: 0 1rem;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1rem 1.25rem;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-body {
+      padding: 1.25rem;
+    }
+
+    /* Top Metadata Bar */
+    .meta-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .meta-item {
+      background: #ffffff;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .meta-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .meta-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .meta-input {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+    }
+
+    /* Progress Bar */
+    .progress-section {
+      background: #ffffff;
+      padding: 0.85rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 1.25rem;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .progress-bar-container {
+      height: 8px;
+      background-color: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Filter Controls */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-btn {
+      padding: 0.3rem 0.75rem;
+      font-size: 0.8rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .filter-btn.active {
+      background: var(--dark);
+      color: #fff;
+      border-color: var(--dark);
+    }
+
+    /* Table Styles */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .checklist-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .checklist-table th {
+      background-color: #f1f5f9;
+      color: #334155;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 0.85rem;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .checklist-table td {
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+
+    .checklist-table tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .checklist-table tbody tr.row-passed {
+      background-color: #f0fdf4;
+    }
+
+    .checklist-table tbody tr.row-issue {
+      background-color: #fff1f2;
+    }
+
+    .floor-badge {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      background: #e2e8f0;
+      color: #1e293b;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border-radius: 4px;
+    }
+
+    .space-title {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.55rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: #fff;
+    }
+    .btn-success:hover {
+      background-color: #146c43;
+    }
+
+    .btn-gsheet {
+      background-color: var(--gsheet-green);
+      color: #fff;
+    }
+    .btn-gsheet:hover {
+      background-color: #0b8043;
+    }
+
+    .btn-outline-success {
+      background-color: #fff;
+      border-color: var(--success);
+      color: var(--success);
+    }
+    .btn-outline-success:hover, .btn-outline-success.active {
+      background-color: var(--success);
+      color: #fff;
+    }
+
+    .btn-outline-danger {
+      background-color: #fff;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .btn-outline-danger:hover, .btn-outline-danger.active {
+      background-color: var(--danger);
+      color: #fff;
+    }
+
+    .btn-outline-secondary {
+      background-color: #fff;
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+
+    .btn-orange {
+      background-color: #f97316;
+      color: #ffffff;
+      border-color: #ea580c;
+    }
+    .btn-orange:hover {
+      background-color: #ea580c;
+      color: #ffffff;
+    }
+    .btn-outline-secondary:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* Status buttons */
+    .status-group {
+      display: inline-flex;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    .status-btn {
+      padding: 0.3rem 0.55rem;
+      font-size: 0.78rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .status-btn.pass.active {
+      background-color: #d1e7dd;
+      border-color: #0f5132;
+      color: #0f5132;
+    }
+
+    .status-btn.fail.active {
+      background-color: #f8d7da;
+      border-color: #842029;
+      color: #842029;
+    }
+
+    .status-btn.clear {
+      color: #94a3b8;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.4rem;
+    }
+    .status-btn.clear:hover {
+      color: var(--danger);
+    }
+
+    .table-input {
+      width: 100%;
+      min-width: 160px;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.82rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+    }
+
+    .preset-dropdown {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.82rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      margin-bottom: 0.25rem;
+      width: 100%;
+      min-width: 160px;
+    }
+
+    /* Google Sheets Setup Card */
+    .setup-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .code-snippet {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 0.85rem;
+      border-radius: 6px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+      line-height: 1.4;
+      white-space: pre;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .info-box-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 0.35rem;
+    }
+
+    .info-box-content {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .record-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill-badge {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .pill-success { background: #dcfce7; color: #166534; }
+    .pill-warning { background: #fef3c7; color: #92400e; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1e293b;
+      color: #ffffff;
+      padding: 0.85rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      z-index: 1000;
+      display: none;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0.85rem;
+      }
+      .header-actions {
+        justify-content: space-between;
+      }
+      .tabs-nav {
+        padding: 0 0.75rem;
+      }
+    }
+    /* Settings Tab Styles */
+    .settings-section {
+      margin-bottom: 1.75rem;
+    }
+
+    .settings-section-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .settings-accordion {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fafbfc;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .settings-accordion summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      transition: background 0.15s ease;
+    }
+
+    .settings-accordion summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .settings-accordion summary:hover {
+      background: #f1f5f9;
+    }
+
+    .settings-accordion summary .accordion-chevron {
+      transition: transform 0.2s ease;
+      color: var(--text-muted);
+    }
+
+    .settings-accordion[open] summary .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    .settings-accordion .settings-accordion-content {
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+    }
+
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+
+    .settings-label {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .settings-label strong {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1e293b;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .settings-label p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .settings-control {
+      flex: 1.5;
+      min-width: 260px;
+      max-width: 520px;
+    }
+
+    .settings-input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+    }
+
+    .status-pill-connected {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-pill-disconnected {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .sync-action-bar {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .sync-action-bar .sync-info {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .sync-action-bar .sync-icon {
+      width: 36px;
+      height: 36px;
+      background: #0ea5e9;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sync-action-bar .sync-text strong {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0c4a6e;
+    }
+
+    .sync-action-bar .sync-text span {
+      font-size: 0.8rem;
+      color: #0369a1;
+    }
+
+    .btn-settings-save {
+      background-color: var(--settings-accent);
+      color: #fff;
+      border-color: var(--settings-accent);
+    }
+
+    .btn-settings-save:hover {
+      background-color: #6d28d9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Application Bar -->
+  <header aria-label="Jabra Floorwalk application header">
+    <div class="brand-section">
+      <div class="brand-logo" aria-hidden="true">Jabra</div>
+      <div class="brand-title">
+        <h1>Floorwalk Checklist <span class="brand-version" id="headerAppVersion">1.0.1</span></h1>
+        <p role="doc-subtitle">Jabra Speak Huddle &amp; Meeting Room Inspection Portal</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <!-- OneDrive / Cloud Database Sync Pill -->
+      <div class="gsheet-pill" id="gsheetStatusPill" onclick="switchTab('settings')" title="Click to open Settings & Database Sync">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="gsheetStatusText">OneDrive Sync</span>
+      </div>
+
+      <button class="btn btn-primary" onclick="setDateTimeNow()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        DATE NOW
+      </button>
+      <button class="btn btn-success" onclick="submitChecklist()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        SUBMIT
+      </button>
+      <button class="btn btn-orange" onclick="switchTab('data')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Open Data (<span id="recordCountBadge">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tabs-nav">
+    <button class="tab-btn active" id="tab-btn-checklist" onclick="switchTab('checklist')">
+      <span>📋 Checklist (Sheet1)</span>
+      <span class="badge-count" id="badgePending">20 rooms</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-data" onclick="switchTab('data')">
+      <span>🗄️ Recorded History &amp; Data</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-readme" onclick="switchTab('readme')">
+      <span>📖 Read Me</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-settings" onclick="switchTab('settings')">
+      <span>⚙️ Settings</span>
+    </button>
+  </nav>
+
+  <div class="container">
+
+    <!-- TAB 1: CHECKLIST (SHEET1) -->
+    <div id="tab-checklist" class="tab-content active">
+
+      <!-- Edit Mode Banner -->
+      <div id="editModeBanner" style="display:none; background:#fef3c7; border:1px solid #f59e0b; border-radius:8px; padding:0.75rem 1rem; margin-bottom:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+        <div style="display:flex; align-items:center; gap:0.5rem; color:#92400e; font-size:0.9rem; font-weight:600;">
+          <span>✏️ Editing Inspection Record:</span>
+          <span id="editModeRecordId" style="font-family:monospace; font-weight:700; color:#78350f;"></span>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-sm btn-outline-secondary" onclick="cancelEditMode()">Cancel Edit</button>
+        </div>
+      </div>
+
+      <!-- Metadata & Inspector Controls -->
+      <div class="meta-bar">
+        <div class="meta-item">
+          <div class="meta-label">Inspection Date</div>
+          <input type="text" id="inspectionDate" class="meta-input" placeholder="MM/DD/YYYY" oninput="saveDraft()">
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Inspection Time</div>
+          <input type="text" id="inspectionTime" class="meta-input" placeholder="hh:mm:ss AM/PM" oninput="saveDraft()">
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Inspector Name <span style="color:var(--danger); font-weight:bold;">*</span></div>
+          <select id="inspectorName" class="meta-input" style="font-weight:600; cursor:pointer;" onchange="this.style.borderColor=''; saveDraft()">
+            <option value="">— Select Inspector —</option>
+          </select>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Building / Site</div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <select id="selectedSiteDropdown" class="meta-input" style="font-weight:700; cursor:pointer;" onchange="onSiteChange(this.value)">
+              <option value="1800">1800 Building</option>
+              <option value="UPA">UPA Site</option>
+              <option value="NAGA">NAGA Site</option>
+            </select>
+            <span class="floor-badge" id="siteFloorsBadge">5F, 7F, 8F</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Inspection Progress Tracker -->
+      <div class="progress-section">
+        <div class="progress-stats">
+          <span>Inspection Progress: <span id="progressText">0 / 20 Completed</span></span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+      </div>
+
+      <!-- Checklist Main Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>Floorwalk Inspection List</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+            <!-- Filter by Floor -->
+            <div class="filter-bar" id="floorFilterContainer">
+              <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">FILTER:</span>
+              <button class="filter-btn active" onclick="filterFloor('ALL', this)">All Floors</button>
+            </div>
+            <!-- Bulk Actions -->
+            <div style="display:flex; gap:0.4rem; margin-left:auto;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="resetChecklistForm()">↺ Reset All</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="checklist-table" id="tableChecklist">
+            <thead>
+              <tr>
+                <th style="width: 45px;">#</th>
+                <th style="width: 90px;">Building</th>
+                <th style="width: 80px;">Floor</th>
+                <th style="width: 180px;">Huddle Room</th>
+                <th style="width: 210px;">Check Status</th>
+                <th>Remarks / Issue Details</th>
+                <th style="width: 130px;">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="checklistTableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+        <div class="card-body" style="background:#f8fafc; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div style="font-size:0.85rem; color:var(--text-muted);">
+            ⚡ Click <strong>✓ Good</strong> or <strong>✗ Issue</strong> to record room status with timestamp. Submissions synchronize directly to your team's Google Sheet database.
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-primary" onclick="submitChecklist()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              SUBMIT DETAILS
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB: SETTINGS (old gsheet hidden for backward compat) -->
+    <div id="tab-gsheet" class="tab-content" style="display:none !important;"></div>
+
+    <!-- TAB: SETTINGS -->
+    <div id="tab-settings" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚙️ Settings</div>
+          <div id="settingsConnectionBadge"></div>
+        </div>
+        <div class="card-body">
+
+          <!-- SYNC ACTION BAR -->
+          <div class="sync-action-bar">
+            <div class="sync-info">
+              <div class="sync-icon">
+                <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24" stroke-width="2.2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              </div>
+              <div class="sync-text">
+                <strong>Sync Database</strong>
+                <span id="settingsSyncStatus">Pull latest records from your connected cloud database.</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+              <button class="btn btn-gsheet" onclick="syncWithGoogleSheet(true)">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Sync Now
+              </button>
+              <a id="openSheetLink" href="#" target="_blank" class="btn btn-outline-secondary" style="display:none;">🔗 Open Database</a>
+            </div>
+          </div>
+
+          <!-- SECTION: DATABASE CONNECTION -->
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4.03 3 9 3s9-1.34 9-3v-6"/></svg>
+              Database Connection
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Cloud Provider</strong>
+                <p>Select whether your database is hosted on Microsoft OneDrive (Power Automate) or Google Sheets (Apps Script).</p>
+              </div>
+              <div class="settings-control">
+                <select id="dbProviderSelect" class="meta-input" style="font-weight:700;" onchange="onDbProviderChange(this.value)">
+                  <option value="onedrive">☁️ Microsoft OneDrive (Power Automate Webhook)</option>
+                  <option value="gsheet" selected>📊 Google Sheets (Apps Script Web App)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong id="webhookUrlLabel">Webhook / Web App URL</strong>
+                <p>The endpoint URL used to push inspection data and pull records from the cloud database.</p>
+              </div>
+              <div class="settings-control">
+                <div class="settings-input-row">
+                  <input type="url" id="gsheetWebAppUrl" class="meta-input" placeholder="https://prod-XX.southeastasia.logic.azure.com:443/workflows/...">
+                  <button class="btn btn-settings-save" onclick="saveGoogleSheetUrl()" style="white-space:nowrap;">Save &amp; Connect</button>
+                </div>
+                <div id="webhookConnectionStatus" style="margin-top:0.5rem;"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong id="directUrlLabel">Direct Database Link</strong>
+                <p>Optional: a direct link to the OneDrive Excel or Google Sheet file for quick access.</p>
+              </div>
+              <div class="settings-control">
+                <input type="url" id="gsheetDirectUrl" class="meta-input" placeholder="https://ibm.sharepoint.com/.../Jabra_Floorwalk_Logs.xlsx" onchange="saveDirectSheetUrl()">
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: INSPECTOR LIST -->
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Inspector List
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Add Inspector</strong>
+                <p>Enter the inspector's name and email address, then click Add.</p>
+              </div>
+              <div class="settings-control">
+                <div class="settings-input-row" style="flex-wrap:wrap; gap:0.5rem;">
+                  <input type="text" id="newInspectorName" class="meta-input" placeholder="Full Name" style="flex:1; min-width:140px;">
+                  <input type="email" id="newInspectorEmail" class="meta-input" placeholder="email@example.com" style="flex:1.5; min-width:180px;">
+                  <button class="btn btn-settings-save" onclick="addInspector()" style="white-space:nowrap;">+ Add</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Current Inspectors</strong>
+                <p>List of inspectors available in the dropdown. Click × to remove.</p>
+              </div>
+              <div class="settings-control">
+                <div id="inspectorListContainer" style="display:flex; flex-direction:column; gap:0.4rem;"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Test Email Alert</strong>
+                <p>Send a test email immediately to verify webhook and email delivery.</p>
+              </div>
+              <div class="settings-control">
+                <div class="settings-input-row" style="flex-wrap:wrap; gap:0.5rem;">
+                  <select id="testEmailInspector" class="meta-input" style="flex:1; min-width:160px;">
+                    <option value="">— Select Inspector —</option>
+                  </select>
+                  <button class="btn btn-settings-save" onclick="sendTestEmailAlert()" style="white-space:nowrap;">📧 Send Test Email</button>
+                  <button class="btn btn-sm btn-outline-secondary" onclick="debugScheduleAlert()" style="white-space:nowrap;" title="Test the full SCHEDULE_EMAIL_ALERT path with 0-minute delay">🔬 Debug Alert</button>
+                </div>
+                <div id="testEmailStatus" style="margin-top:0.5rem; font-size:0.82rem; color:#57606a;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: SETUP GUIDE (Collapsible Dropdown) -->
+          <div class="settings-section">
+            <details class="settings-accordion">
+              <summary>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span>Setup Guide &amp; Integration Instructions</span>
+                </div>
+                <svg class="accordion-chevron" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="settings-accordion-content">
+
+          <!-- Guide Container: OneDrive -->
+          <div id="guideOneDrive" class="setup-card" style="background:#f0f9ff; border-color:#bae6fd;">
+            <h4 style="font-size:0.95rem; font-weight:700; color:#0369a1; margin-bottom:0.35rem;">☁️ 3-Minute Microsoft OneDrive Setup Guide (Power Automate):</h4>
+            <ol style="font-size:0.85rem; color:#0c4a6e; padding-left:1.25rem; line-height:1.7;">
+              <li>In your <strong>OneDrive for Business / SharePoint</strong>, create an Excel file named <code>Jabra_Floorwalk_Logs.xlsx</code>.</li>
+              <li>Inside the file, create a Table (select cells and press <code>Ctrl+T</code>) named <code>FloorwalkTable</code> with columns:
+                <br><code>Record_ID</code>, <code>Inspection_Date</code>, <code>Inspection_Time</code>, <code>Inspector</code>, <code>Building</code>, <code>Floor</code>, <code>Huddle_Room</code>, <code>Status</code>, <code>Remarks</code>, <code>Checked_Time</code>, <code>Submitted_At</code>
+              </li>
+              <li>Go to <a href="https://make.powerautomate.com" target="_blank" style="color:#0284c7; font-weight:600;">make.powerautomate.com</a> &rarr; <strong>Create</strong> &rarr; <strong>Instant cloud flow</strong> &rarr; Choose <strong>When an HTTP request is received</strong>.</li>
+              <li>In the trigger, paste the JSON payload schema below (click "Copy Payload Schema").</li>
+              <li>Add an action: <strong>Excel Online (Business) &gt; Add a row into a table</strong>:
+                <br>- File: Select your <code>Jabra_Floorwalk_Logs.xlsx</code> in OneDrive
+                <br>- Table: Select <code>FloorwalkTable</code>
+                <br>- Map the row parameters to the trigger's details array.
+              </li>
+              <li>Save the Flow, copy the generated <strong>HTTP POST URL</strong>, and paste it into the URL field above!</li>
+            </ol>
+
+            <div style="margin-top:0.75rem;">
+              <label style="font-size:0.75rem; font-weight:700; color:#0369a1; text-transform:uppercase;">Power Automate Trigger JSON Schema:</label>
+              <div class="code-snippet" id="powerAutomateSchema" style="margin-top:0.35rem; max-height:160px;">{
+  "type": "object",
+  "properties": {
+    "action": { "type": "string" },
+    "id": { "type": "string" },
+    "date": { "type": "string" },
+    "time": { "type": "string" },
+    "inspector": { "type": "string" },
+    "submittedAt": { "type": "string" },
+    "details": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "building": { "type": "string" },
+          "floor": { "type": "string" },
+          "spaceName": { "type": "string" },
+          "status": { "type": "string" },
+          "remark": { "type": "string" },
+          "timestamp": { "type": "string" }
+        }
+      }
+    }
+  }
+}</div>
+              <div style="margin-top:0.5rem;">
+                <button class="btn btn-sm btn-primary" onclick="copyPowerAutomateSchema()">📋 Copy JSON Schema</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Guide Container: Google Sheet -->
+          <div id="guideGoogleSheet" class="setup-card" style="display:none; background:#f0fdf4; border-color:#bbf7d0;">
+            <h4 style="font-size:0.95rem; font-weight:700; color:#166534; margin-bottom:0.35rem;">📝 Google Sheet Setup Guide (Apps Script):</h4>
+            <ol style="font-size:0.85rem; color:#14532d; padding-left:1.25rem; line-height:1.7;">
+              <li>Create a new Google Sheet named <strong>Jabra Floorwalk 1800</strong>.</li>
+              <li>In your Google Sheet, click <strong>Extensions &gt; Apps Script</strong>.</li>
+              <li>Replace all code in Apps Script with the ready-to-use snippet below:</li>
+            </ol>
+
+            <div class="code-snippet" id="appsScriptSnippet">function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Floorwalk_Logs");
+    if (!sheet) {
+      sheet = ss.insertSheet("Floorwalk_Logs");
+      sheet.appendRow([
+        "Record_ID", "Inspection_Date", "Inspection_Time", "Inspector",
+        "Building", "Floor", "Huddle_Room", "Status", "Remarks", "Checked_Time", "Submitted_At"
+      ]);
+      sheet.getRange("A1:K1").setFontWeight("bold").setBackground("#e2e8f0");
+    }
+    
+    var data = JSON.parse(e.postData.contents);
+
+    // Handle App Version and Notes Sync Action
+    if (data.action === "SYNC_APP_VERSION") {
+      var vSheet = ss.getSheetByName("App_Version_Info");
+      if (!vSheet) {
+        vSheet = ss.insertSheet("App_Version_Info");
+        vSheet.appendRow(["Key", "Value", "Last_Updated"]);
+        vSheet.getRange("A1:C1").setFontWeight("bold").setBackground("#e2e8f0");
+      }
+      var nowStr = (new Date()).toISOString();
+      vSheet.getRange("A2:C2").setValues([["App_Version", data.version || "", nowStr]]);
+      vSheet.getRange("A3:C3").setValues([["Release_Notes", data.notes || "", nowStr]]);
+      return ContentService.createTextOutput(JSON.stringify({ status: "version_saved", version: data.version }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Clear All Action
+    if (data.action === "CLEAR_ALL") {
+      var lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.deleteRows(2, lastRow - 1);
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "cleared" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Single Record Delete Action
+    if (data.action === "DELETE_RECORD" && data.recordId) {
+      var rows = sheet.getDataRange().getValues();
+      for (var r = rows.length - 1; r >= 1; r--) {
+        if (rows[r][0] === data.recordId) {
+          sheet.deleteRow(r + 1);
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "deleted", recordId: data.recordId }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Inspector List Sync Action
+    if (data.action === "SYNC_INSPECTORS") {
+      var insSheet = ss.getSheetByName("Inspectors");
+      if (!insSheet) {
+        insSheet = ss.insertSheet("Inspectors");
+        insSheet.appendRow(["Name", "Email", "Last_Updated"]);
+        insSheet.getRange("A1:C1").setFontWeight("bold").setBackground("#e2e8f0");
+      }
+      // Clear existing rows (keep header) and rewrite full list
+      var lastInsRow = insSheet.getLastRow();
+      if (lastInsRow > 1) insSheet.deleteRows(2, lastInsRow - 1);
+      var nowStr = (new Date()).toISOString();
+      var inspectors = data.inspectors || [];
+      for (var ii = 0; ii < inspectors.length; ii++) {
+        insSheet.appendRow([inspectors[ii].name || "", inspectors[ii].email || "", nowStr]);
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "inspectors_saved", count: inspectors.length }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Schedule Email Alert Action (fires 2 mins after submission, works when app is closed)
+    if (data.action === "SCHEDULE_EMAIL_ALERT" && data.recordId) {
+      var alertSheet = ss.getSheetByName("Pending_Alerts");
+      if (!alertSheet) {
+        alertSheet = ss.insertSheet("Pending_Alerts");
+        alertSheet.appendRow(["Record_ID", "Inspector", "To_Email", "Date", "Remarked_Rooms", "Fire_At", "Sent"]);
+        alertSheet.getRange("A1:G1").setFontWeight("bold").setBackground("#e2e8f0");
+      }
+      var fireAt = new Date(new Date().getTime() + (data.delayMinutes || 2) * 60 * 1000);
+      alertSheet.appendRow([
+        data.recordId,
+        data.inspector || "",
+        data.toEmail || "",
+        data.date || "",
+        JSON.stringify(data.remarkedRooms || []),
+        fireAt.toISOString(),
+        "NO"
+      ]);
+      // Create a one-time time-based trigger to fire in 2 minutes
+      ScriptApp.newTrigger("sendPendingAlertEmails")
+        .timeBased()
+        .after((data.delayMinutes || 2) * 60 * 1000)
+        .create();
+      return ContentService.createTextOutput(JSON.stringify({ status: "alert_scheduled", recordId: data.recordId }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Cancel Email Alert Action (when record is edited or deleted before alert fires)
+    if (data.action === "CANCEL_EMAIL_ALERT" && data.recordId) {
+      var alertSheet = ss.getSheetByName("Pending_Alerts");
+      if (alertSheet) {
+        var aRows = alertSheet.getDataRange().getValues();
+        for (var ar = aRows.length - 1; ar >= 1; ar--) {
+          if (aRows[ar][0] === data.recordId && aRows[ar][6] === "NO") {
+            alertSheet.getRange(ar + 1, 7).setValue("CANCELLED");
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "alert_cancelled", recordId: data.recordId }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var details = data.details || [];
+    for (var i = 0; i < details.length; i++) {
+      var d = details[i];
+      sheet.appendRow([
+        data.id, data.date, data.time, data.inspector,
+        d.building, d.floor, d.spaceName, d.status, d.remark, d.timestamp, data.submittedAt
+      ]);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", count: details.length }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var params = e && e.parameter ? e.parameter : {};
+
+    // Handle Test Email Action — sends immediately, no trigger needed
+    if (params.action === "SEND_TEST_EMAIL" && params.toEmail) {
+      try {
+        MailApp.sendEmail({
+          to: params.toEmail,
+          subject: "[Jabra Floorwalk] Test Email",
+          body: "Hi " + (params.inspector || "Inspector") + ",\n\nThis is a test email from the Jabra Floorwalk Checklist app.\n\nIf you received this, your webhook and email delivery are working correctly.\n\nThank you,\nJabra Floorwalk Checklist"
+        });
+        return ContentService.createTextOutput(JSON.stringify({ status: "test_email_sent", to: params.toEmail }))
+          .setMimeType(ContentService.MimeType.JSON);
+      } catch(err) {
+        return ContentService.createTextOutput(JSON.stringify({ status: "error", error: err.toString() }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    // Handle SCHEDULE_EMAIL_ALERT via GET params
+    if (params.action === "SCHEDULE_EMAIL_ALERT" && params.recordId) {
+      var alertSheet = ss.getSheetByName("Pending_Alerts");
+      if (!alertSheet) {
+        alertSheet = ss.insertSheet("Pending_Alerts");
+        alertSheet.appendRow(["Record_ID", "Inspector", "To_Email", "Date", "Remarked_Rooms", "Fire_At", "Sent"]);
+        alertSheet.getRange("A1:G1").setFontWeight("bold").setBackground("#e2e8f0");
+      }
+      var delayMs = parseInt(params.delayMinutes || "2") * 60 * 1000;
+      var fireAt = new Date(new Date().getTime() + delayMs);
+      alertSheet.appendRow([
+        params.recordId,
+        params.inspector || "",
+        params.toEmail || "",
+        params.date || "",
+        params.remarkedRooms || "[]",
+        fireAt.toISOString(),
+        "NO"
+      ]);
+      ScriptApp.newTrigger("sendPendingAlertEmails")
+        .timeBased()
+        .after(delayMs)
+        .create();
+      return ContentService.createTextOutput(JSON.stringify({ status: "alert_scheduled" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle CANCEL_EMAIL_ALERT via GET params
+    if (params.action === "CANCEL_EMAIL_ALERT" && params.recordId) {
+      var alertSheet = ss.getSheetByName("Pending_Alerts");
+      if (alertSheet) {
+        var aRows = alertSheet.getDataRange().getValues();
+        for (var ar = aRows.length - 1; ar >= 1; ar--) {
+          if (aRows[ar][0] === params.recordId && aRows[ar][6] === "NO") {
+            alertSheet.getRange(ar + 1, 7).setValue("CANCELLED");
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "alert_cancelled" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Check for App Version Sheet info
+    var versionInfo = null;
+    var vSheet = ss.getSheetByName("App_Version_Info");
+    if (vSheet) {
+      var vRows = vSheet.getDataRange().getValues();
+      var vMap = {};
+      for (var vi = 1; vi < vRows.length; vi++) {
+        var k = vRows[vi][0];
+        if (k) vMap[k] = vRows[vi][1];
+      }
+      if (vMap["App_Version"] || vMap["Release_Notes"]) {
+        versionInfo = {
+          version: vMap["App_Version"] || "",
+          notes: vMap["Release_Notes"] || ""
+        };
+      }
+    }
+
+    // Read Inspector list
+    var inspectorsInfo = null;
+    var insSheet = ss.getSheetByName("Inspectors");
+    if (insSheet && insSheet.getLastRow() > 1) {
+      var insRows = insSheet.getDataRange().getValues();
+      inspectorsInfo = [];
+      for (var ir = 1; ir < insRows.length; ir++) {
+        if (insRows[ir][0]) {
+          inspectorsInfo.push({ name: insRows[ir][0], email: insRows[ir][1] || "" });
+        }
+      }
+    }
+
+    var sheet = ss.getSheetByName("Floorwalk_Logs");
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({
+        records: [],
+        appVersionInfo: versionInfo,
+        inspectorsInfo: inspectorsInfo
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    var rows = sheet.getDataRange().getValues();
+    var recordsMap = {};
+    
+    for (var r = 1; r < rows.length; r++) {
+      var recId = rows[r][0];
+      if (!recId) continue;
+      if (!recordsMap[recId]) {
+        recordsMap[recId] = {
+          id: recId,
+          date: rows[r][1],
+          time: rows[r][2],
+          inspector: rows[r][3],
+          submittedAt: rows[r][10],
+          details: []
+        };
+      }
+      recordsMap[recId].details.push({
+        building: rows[r][4],
+        floor: rows[r][5],
+        spaceName: rows[r][6],
+        status: rows[r][7],
+        remark: rows[r][8],
+        timestamp: rows[r][9]
+      });
+    }
+    
+    var list = [];
+    for (var k in recordsMap) { list.push(recordsMap[k]); }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      records: list,
+      appVersionInfo: versionInfo,
+      inspectorsInfo: inspectorsInfo
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Called automatically by a time-based trigger 2 mins after each submission
+function sendPendingAlertEmails() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var alertSheet = ss.getSheetByName("Pending_Alerts");
+  if (!alertSheet) return;
+
+  var now = new Date();
+  var rows = alertSheet.getDataRange().getValues();
+
+  for (var i = 1; i < rows.length; i++) {
+    var status = rows[i][6];
+    if (status !== "NO") continue; // already sent or cancelled
+
+    var fireAt = new Date(rows[i][5]);
+    if (now < fireAt) continue; // not yet time
+
+    var recordId  = rows[i][0];
+    var inspector = rows[i][1];
+    var toEmail   = rows[i][2];
+    var date      = rows[i][3];
+    var rooms     = [];
+    try { rooms = JSON.parse(rows[i][4]); } catch(e) {}
+
+    if (!toEmail) {
+      alertSheet.getRange(i + 1, 7).setValue("NO_EMAIL");
+      continue;
+    }
+
+    var roomList = rooms.map(function(r) {
+      return "  • " + r.spaceName + (r.remark ? ": " + r.remark : "");
+    }).join("\n");
+
+    var subject = "[Jabra Floorwalk] Remarked Rooms – " + date + " – " + inspector;
+    var body = "Hi " + inspector + ",\n\n"
+      + "This is an automated reminder that your inspection submitted on " + date
+      + " has " + rooms.length + " room(s) marked as Remarked that may require a recheck:\n\n"
+      + roomList + "\n\n"
+      + "Please review and recheck the above room(s) at your earliest convenience.\n\n"
+      + "Thank you,\nJabra Floorwalk Checklist";
+
+    try {
+      MailApp.sendEmail({ to: toEmail, subject: subject, body: body });
+      alertSheet.getRange(i + 1, 7).setValue("SENT");
+    } catch(e) {
+      alertSheet.getRange(i + 1, 7).setValue("ERROR: " + e.toString());
+    }
+  }
+
+  // Clean up old triggers for this function to avoid accumulation
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var t = 0; t < triggers.length; t++) {
+    if (triggers[t].getHandlerFunction() === "sendPendingAlertEmails") {
+      ScriptApp.deleteTrigger(triggers[t]);
+    }
+  }
+}</div>
+
+            <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+              <button class="btn btn-sm btn-primary" onclick="copySnippet()">📋 Copy Apps Script Code</button>
+            </div>
+
+            <ol start="4" style="font-size:0.85rem; color:#14532d; padding-left:1.25rem; line-height:1.7; margin-top:0.75rem;">
+              <li>In Apps Script, click <strong>Project Settings</strong> (⚙️ gear icon) → tick <strong>"Show appsscript.json manifest file in editor"</strong>.</li>
+              <li>Click <strong>appsscript.json</strong> in the file list and replace its entire contents with the manifest below, then click Save (💾):</li>
+            </ol>
+
+            <div class="code-snippet" id="appsScriptManifest">{
+  "timeZone": "Asia/Manila",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/script.send_mail",
+    "https://www.googleapis.com/auth/script.scriptapp",
+    "https://www.googleapis.com/auth/script.external_request"
+  ],
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE_ANONYMOUS"
+  }
+}</div>
+
+            <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+              <button class="btn btn-sm btn-primary" onclick="copyManifest()">📋 Copy appsscript.json</button>
+            </div>
+
+            <ol start="6" style="font-size:0.85rem; color:#14532d; padding-left:1.25rem; line-height:1.7; margin-top:0.75rem;">
+              <li>Click <strong>Deploy &gt; New deployment</strong> in Apps Script.</li>
+              <li>Select type: <strong>Web app</strong>, set <em>Who has access</em> to <strong>Anyone</strong>, and click <strong>Deploy</strong>.</li>
+              <li>Google will ask you to <strong>Review Permissions</strong> — click Allow to grant mail sending access.</li>
+              <li>Copy the generated <strong>Web app URL</strong> and paste it in Step 1 above!</li>
+            </ol>
+          </div>
+              </div><!-- /settings-accordion-content -->
+            </details>
+          </div><!-- /settings-section setup guide -->
+
+        </div><!-- /card-body -->
+      </div><!-- /card -->
+    </div><!-- /tab-settings -->
+
+    <!-- TAB 3: RECORDED DATA / EXPORT (RECORD HISTORY) -->
+    <div id="tab-data" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🗄️ Recorded Inspection History</div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-outline-success" onclick="exportDataToCSV()">
+              📥 Export History to CSV
+            </button>
+            <button class="btn btn-sm btn-gsheet" onclick="syncWithGoogleSheet(true)">
+              🔄 Sync Database
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="clearAllRecordedData()">
+              🗑️ Clear History
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Search & Filter Bar (Date Range) -->
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:6px; padding:0.85rem 1rem; margin-bottom:1.25rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap; justify-content:space-between;">
+            <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; flex:1;">
+              <span style="font-size:0.85rem; font-weight:700; color:#475569; display:flex; align-items:center; gap:0.35rem;">
+                📅 <span>Date Range:</span>
+              </span>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <label for="recordSearchStartDate" style="font-size:0.78rem; font-weight:600; color:var(--text-muted);">From:</label>
+                <input type="date" id="recordSearchStartDate" class="meta-input" style="width:auto; padding:0.4rem 0.6rem; font-size:0.85rem;" onchange="onDateRangeChange()" title="Start Date">
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <label for="recordSearchEndDate" style="font-size:0.78rem; font-weight:600; color:var(--text-muted);">To:</label>
+                <input type="date" id="recordSearchEndDate" class="meta-input" style="width:auto; padding:0.4rem 0.6rem; font-size:0.85rem;" onchange="onDateRangeChange()" title="End Date">
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem; flex:1; min-width:180px; max-width:260px;">
+                <select id="recordSearchBuilding" class="meta-input" style="width:100%; padding:0.4rem 0.6rem; font-size:0.85rem;" onchange="onDateRangeChange()" title="Filter by Building">
+                  <option value="">All Buildings</option>
+                  <option value="1800">1800 Building</option>
+                  <option value="UPA">UPA Building</option>
+                  <option value="NAGA">NAGA Building</option>
+                </select>
+              </div>
+              <button class="btn btn-sm btn-secondary" onclick="clearDateRangeFilter()" title="Clear date range and building filter">Clear Filter</button>
+            </div>
+            <div id="filterResultCount" style="font-size:0.85rem; font-weight:600; color:var(--text-muted);"></div>
+          </div>
+
+          <div id="emptyDataNotice" style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" style="margin-bottom:0.75rem; opacity:0.6;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <p style="font-size:1rem; font-weight:600;">No floorwalk records found.</p>
+            <p style="font-size:0.85rem;" id="emptyDataSubtext">Complete the checklist in Sheet1 and click <strong>SUBMIT</strong> to record data.</p>
+          </div>
+          <div id="recordsContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: READ ME / INSTRUCTIONS (READ ME SHEET) -->
+    <div id="tab-readme" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📖 Jabra Floorwalk Guideline &amp; Reference</div>
+        </div>
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-box">
+              <div class="info-box-title">🔍 WHAT</div>
+              <div class="info-box-content">Jabra Speak huddle/meeting room floorwalk</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-title">📍 WHERE</div>
+              <div class="info-box-content">1800, UPA and NAGA</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-title">⏰ WHEN</div>
+              <div class="info-box-content">Every Onsite Shift</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-title">🎯 WHY</div>
+              <div class="info-box-content">Need to check the status of Jabra Speak (Battery, Security lock, position, etc.)</div>
+            </div>
+            <div class="info-box" style="grid-column: span 2;">
+              <div class="info-box-title">👥 WHO</div>
+              <div class="info-box-content">1800 and UPA - GY ; Naga - AM</div>
+            </div>
+          </div>
+
+          <h3 style="font-size:1rem; margin-top:1.25rem; margin-bottom:0.5rem; font-weight:700;">Remarks &amp; Operational Guide</h3>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1rem;">
+            <div style="display:flex; gap:0.75rem; margin-bottom:0.5rem; align-items:center;">
+              <span style="background:#d1fae5; color:#065f46; font-weight:bold; padding:2px 8px; border-radius:4px;">✓ Good</span>
+              <span style="font-size:0.88rem;">Device is in good condition, proper position, locked, and no issues found.</span>
+            </div>
+            <div style="display:flex; gap:0.75rem; align-items:center;">
+              <span style="background:#fee2e2; color:#991b1b; font-weight:bold; padding:2px 8px; border-radius:4px;">✗ Issue</span>
+              <span style="font-size:0.88rem;">Device displaced, occupied without vision, battery low, or detached lock. Add specific notes.</span>
+            </div>
+          </div>
+
+          <h3 style="font-size:1rem; margin-top:1.25rem; margin-bottom:0.5rem; font-weight:700;">Button Functionality Reference (From Excel Macro)</h3>
+          <ul style="padding-left:1.5rem; font-size:0.88rem; color:#334155; line-height:1.8;">
+            <li><strong>DATE NOW:</strong> Automatically populates the current date and time header (required).</li>
+            <li><strong>STATUS BUTTONS:</strong> Click <strong>✓ Good</strong> or <strong>✗ Issue</strong> to capture current timestamp and mark room condition.</li>
+            <li><strong>SUBMIT:</strong> Validates completed items, packages inspection results into local database/history and live OneDrive / Cloud database.</li>
+            <li><strong>OPEN DATA:</strong> Displays and manages historical inspection submissions with full audit trail.</li>
+          </ul>
+
+          <!-- Version & Update Notes Section -->
+          <h3 style="font-size:1rem; margin-top:1.5rem; margin-bottom:0.75rem; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Version &amp; Update Notes
+          </h3>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <label style="font-size:0.85rem; font-weight:700; color:var(--text-dark); display:block; margin-bottom:0.25rem;">App Version Editor</label>
+                <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">Edit the current version (updates header badge, cloud database, and email subject).</p>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <input type="text" id="appVersionInput" class="meta-input" placeholder="1.0.1" style="max-width:140px; font-weight:700;">
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size:0.85rem; font-weight:700; color:var(--text-dark); display:block; margin-bottom:0.25rem;">Changelog / Release Notes</label>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin:0 0 0.5rem 0;">Document version notes, changes, and updates for this release.</p>
+              <textarea id="appReleaseNotes" class="meta-input" rows="5" style="width:100%; font-family:inherit; font-size:0.85rem; line-height:1.5; resize:vertical;" placeholder="- Added Naga room name updates (Magayon, Panganoron, Asog, Ticao, Calaguas)&#10;- Collapsible setup guide in settings&#10;- Bug fixes &amp; performance improvements"></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-sm btn-primary" onclick="saveAndSyncVersion(true)">Update Version</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="sendVersionEmail()">✉️ Send Email with Update Notes</button>
+              </div>
+              <span id="versionNotesStatus" style="font-size:0.75rem; color:var(--text-muted);"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="toastMessage"></div>
+
+  <!-- Remarks Notification Modal -->
+  <div id="remarksNotifOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.18); max-width:480px; width:92%; padding:1.75rem 1.5rem; position:relative;">
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+        <span style="font-size:1.6rem;">🔔</span>
+        <div>
+          <div style="font-size:1rem; font-weight:700; color:#1f2328;">Remarks Reminder</div>
+          <div style="font-size:0.8rem; color:#57606a;">2 minutes after submission</div>
+        </div>
+      </div>
+      <p id="remarksNotifBody" style="font-size:0.9rem; color:#1f2328; line-height:1.6; margin:0 0 1.25rem;"></p>
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; justify-content:flex-end;">
+        <button onclick="dismissRemarksNotif()" style="padding:0.45rem 1rem; border:1px solid #e5e7eb; border-radius:6px; background:#f7f8fa; cursor:pointer; font-size:0.85rem;">Dismiss</button>
+        <button id="remarksNotifEmailBtn" onclick="sendRemarksEmail()" style="padding:0.45rem 1rem; border:none; border-radius:6px; background:#3b82d4; color:#fff; cursor:pointer; font-size:0.85rem; font-weight:600;">📧 Email Inspector</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Room inventory per site (Source: Jabra Floorwalk & Sites.xlsx)
+    const SITE_ROOMS = {
+      "1800": [
+        // Floor 5
+        { id: 1, building: "1800", floor: "5", spaceName: "TURKESA", defaultRemark: "" },
+        { id: 2, building: "1800", floor: "5", spaceName: "PULA", defaultRemark: "" },
+        { id: 3, building: "1800", floor: "5", spaceName: "LILA", defaultRemark: "" },
+        { id: 4, building: "1800", floor: "5", spaceName: "KAHEL", defaultRemark: "" },
+        { id: 5, building: "1800", floor: "5", spaceName: "DILAW", defaultRemark: "" },
+        { id: 6, building: "1800", floor: "5", spaceName: "NILA", defaultRemark: "" },
+        { id: 7, building: "1800", floor: "5", spaceName: "MORADO", defaultRemark: "" },
+        { id: 8, building: "1800", floor: "5", spaceName: "ROSAS", defaultRemark: "" },
+        
+        // Floor 7
+        { id: 9, building: "1800", floor: "7", spaceName: "NASUGBU", defaultRemark: "" },
+        { id: 10, building: "1800", floor: "7", spaceName: "FLORIDA BLANCA", defaultRemark: "" },
+        { id: 11, building: "1800", floor: "7", spaceName: "TUBBATAHA", defaultRemark: "" },
+        { id: 12, building: "1800", floor: "7", spaceName: "DUMAGUETE", defaultRemark: "" },
+        { id: 13, building: "1800", floor: "7", spaceName: "BALER", defaultRemark: "" },
+        { id: 14, building: "1800", floor: "7", spaceName: "AMANPULO", defaultRemark: "" },
+        
+        // Floor 8
+        { id: 15, building: "1800", floor: "8", spaceName: "ALBAYMEETRM", defaultRemark: "" },
+        { id: 16, building: "1800", floor: "8", spaceName: "ELNIDO", defaultRemark: "" },
+        { id: 17, building: "1800", floor: "8", spaceName: "ILOILO", defaultRemark: "" },
+        { id: 18, building: "1800", floor: "8", spaceName: "HUMA", defaultRemark: "" },
+        { id: 19, building: "1800", floor: "8", spaceName: "JOLO", defaultRemark: "" },
+        { id: 20, building: "1800", floor: "8", spaceName: "BORACAY", defaultRemark: "" }
+      ],
+      "UPA": [
+        // UPAE Floor 3
+        { id: 101, building: "UPAE", floor: "3", spaceName: "BAGUIO", defaultRemark: "" },
+        { id: 102, building: "UPAE", floor: "3", spaceName: "ANTIQUE", defaultRemark: "" },
+        { id: 103, building: "UPAE", floor: "3", spaceName: "WESTERN SAMAR", defaultRemark: "" },
+        { id: 104, building: "UPAE", floor: "3", spaceName: "SARANGGANI", defaultRemark: "" },
+        { id: 105, building: "UPAE", floor: "3", spaceName: "NAGA", defaultRemark: "" },
+        // UPAJ Ground Floor
+        { id: 106, building: "UPAJ", floor: "G", spaceName: "Design Thinking Room 1", defaultRemark: "" },
+        { id: 107, building: "UPAJ", floor: "G", spaceName: "Design Thinking Room 2", defaultRemark: "" },
+        { id: 108, building: "UPAJ", floor: "G", spaceName: "Design Thinking Room 3", defaultRemark: "" },
+        { id: 109, building: "UPAJ", floor: "G", spaceName: "Small Meeting Room 1", defaultRemark: "" },
+        // UPAJ Floor 2
+        { id: 110, building: "UPAJ", floor: "2", spaceName: "ALUGBATI", defaultRemark: "" },
+        { id: 111, building: "UPAJ", floor: "2", spaceName: "MIRASOL", defaultRemark: "" },
+        { id: 112, building: "UPAJ", floor: "2", spaceName: "LUMBANG", defaultRemark: "" },
+        // UPAJ Floor 4
+        { id: 113, building: "UPAJ", floor: "4", spaceName: "SILANG", defaultRemark: "" },
+        // UPAJ Floor 4
+        { id: 114, building: "UPAJ", floor: "4", spaceName: "JACINTO", defaultRemark: "" },
+        // UPAM Floor 2
+        { id: 115, building: "UPAM", floor: "2", spaceName: "MEETING ROOM 3", defaultRemark: "" },
+        { id: 116, building: "UPAM", floor: "2", spaceName: "Medium Conference Room", defaultRemark: "" }
+      ],
+      "NAGA": [
+        // NAGAB Floor 4
+        { id: 201, building: "NAGAB", floor: "4", spaceName: "MAGAYON", defaultRemark: "" },
+        { id: 202, building: "NAGAB", floor: "4", spaceName: "PANGANORON", defaultRemark: "" },
+        { id: 203, building: "NAGAB", floor: "4", spaceName: "ASOG", defaultRemark: "" },
+        { id: 204, building: "NAGAB", floor: "4", spaceName: "TICAO", defaultRemark: "" },
+        { id: 205, building: "NAGAB", floor: "4", spaceName: "CALAGUAS", defaultRemark: "" }
+      ]
+    };
+
+    let currentSite = "1800";
+    let ROOMS_DATA = SITE_ROOMS["1800"];
+
+    const PRESET_REMARKS = [
+      "-- Select preset remark (optional) --",
+      "Occupied but Jabra is visible",
+      "Occupied and no vision to Jabra",
+      "Locked but Jabra is visible",
+      "Other issue (Specify in text)"
+    ];
+
+    let checklistState = {};
+    let currentEditingRecordId = null;
+
+    // ==========================================
+    // DRAFT PERSISTENCE (survives page refresh)
+    // ==========================================
+    const DRAFT_KEY = 'jabra_floorwalk_draft';
+
+    function saveDraft() {
+      const draft = {
+        site: currentSite,
+        date: document.getElementById('inspectionDate') ? document.getElementById('inspectionDate').value : '',
+        time: document.getElementById('inspectionTime') ? document.getElementById('inspectionTime').value : '',
+        inspector: document.getElementById('inspectorName') ? document.getElementById('inspectorName').value : '',
+        state: checklistState,
+        editingRecordId: currentEditingRecordId || null
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+
+    function loadDraft() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return false;
+        const draft = JSON.parse(raw);
+        if (!draft) return false;
+
+        // Restore site first so ROOMS_DATA is correct
+        if (draft.site && SITE_ROOMS[draft.site]) {
+          currentSite = draft.site;
+          ROOMS_DATA = SITE_ROOMS[draft.site];
+          const siteDropdown = document.getElementById('selectedSiteDropdown');
+          if (siteDropdown) siteDropdown.value = draft.site;
+          updateSiteView(draft.site);
+        }
+
+        // Restore metadata fields
+        if (draft.date) {
+          const el = document.getElementById('inspectionDate');
+          if (el) el.value = draft.date;
+        }
+        if (draft.time) {
+          const el = document.getElementById('inspectionTime');
+          if (el) el.value = draft.time;
+        }
+        if (draft.inspector) {
+          populateInspectorDropdown(draft.inspector);
+        }
+
+        // Restore checklist state
+        if (draft.state && typeof draft.state === 'object') {
+          checklistState = draft.state;
+        }
+
+        // Restore edit mode
+        if (draft.editingRecordId) {
+          currentEditingRecordId = draft.editingRecordId;
+          const banner = document.getElementById('editModeBanner');
+          const bannerId = document.getElementById('editModeRecordId');
+          if (banner && bannerId) {
+            bannerId.innerText = draft.editingRecordId;
+            banner.style.display = 'flex';
+          }
+        }
+
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function clearDraft() {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+
+    // ==========================================
+    // INSPECTOR LIST
+    // ==========================================
+    const INSPECTORS_KEY = 'jabra_inspectors';
+
+    function getInspectors() {
+      try { return JSON.parse(localStorage.getItem(INSPECTORS_KEY)) || []; }
+      catch(e) { return []; }
+    }
+
+    function saveInspectors(list) {
+      localStorage.setItem(INSPECTORS_KEY, JSON.stringify(list));
+      syncInspectorsToSheet(list);
+    }
+
+    async function syncInspectorsToSheet(list) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+      try {
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'SYNC_INSPECTORS', inspectors: list })
+        });
+      } catch (e) {}
+    }
+
+    function populateInspectorDropdown(selectedValue) {
+      const sel = document.getElementById('inspectorName');
+      if (!sel) return;
+      const current = selectedValue !== undefined ? selectedValue : sel.value;
+      sel.innerHTML = '<option value="">— Select Inspector —</option>';
+      getInspectors().forEach(function(ins) {
+        const opt = document.createElement('option');
+        opt.value = ins.name;
+        opt.textContent = ins.name;
+        if (ins.name === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderInspectorSettings() {
+      const container = document.getElementById('inspectorListContainer');
+      if (!container) return;
+      const list = getInspectors();
+      if (list.length === 0) {
+        container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No inspectors added yet.</span>';
+      } else {
+        container.innerHTML = list.map(function(ins, i) {
+          return `<div style="display:flex; align-items:center; gap:0.5rem; padding:0.4rem 0.6rem; background:var(--surface); border:1px solid var(--border); border-radius:6px; font-size:0.85rem;">
+            <span style="flex:1; font-weight:600;">${escapeHtml(ins.name)}</span>
+            <span style="color:var(--text-muted);">${escapeHtml(ins.email || '')}</span>
+            <button onclick="removeInspector(${i})" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" title="Remove">×</button>
+          </div>`;
+        }).join('');
+      }
+      // Also refresh the test email dropdown
+      const testSel = document.getElementById('testEmailInspector');
+      if (testSel) {
+        testSel.innerHTML = '<option value="">— Select Inspector —</option>';
+        list.forEach(function(ins) {
+          if (ins.email) {
+            const opt = document.createElement('option');
+            opt.value = ins.name;
+            opt.textContent = ins.name + ' (' + ins.email + ')';
+            testSel.appendChild(opt);
+          }
+        });
+      }
+    }
+
+    function addInspector() {
+      const nameEl = document.getElementById('newInspectorName');
+      const emailEl = document.getElementById('newInspectorEmail');
+      const name = (nameEl ? nameEl.value.trim() : '');
+      const email = (emailEl ? emailEl.value.trim() : '');
+      if (!name) { alert('Please enter the inspector\'s name.'); nameEl && nameEl.focus(); return; }
+      const list = getInspectors();
+      if (list.find(function(x) { return x.name.toLowerCase() === name.toLowerCase(); })) {
+        alert('An inspector with that name already exists.'); return;
+      }
+      list.push({ name: name, email: email });
+      saveInspectors(list);
+      if (nameEl) nameEl.value = '';
+      if (emailEl) emailEl.value = '';
+      renderInspectorSettings();
+      populateInspectorDropdown();
+      showToast('Inspector "' + name + '" added.');
+    }
+
+    function removeInspector(index) {
+      const list = getInspectors();
+      const removed = list.splice(index, 1)[0];
+      saveInspectors(list);
+      renderInspectorSettings();
+      populateInspectorDropdown();
+      if (removed) showToast('Inspector "' + removed.name + '" removed.');
+    }
+
+    function init() {
+      loadGoogleSheetConfig();
+      loadAppVersionAndNotes();
+      populateInspectorDropdown();
+      renderInspectorSettings();
+
+      const hadDraft = loadDraft();
+      if (!hadDraft) {
+        setDateTimeNow(false);
+        updateSiteView(currentSite);
+      }
+
+      renderFilterButtons();
+      renderTable();
+      updateRecordsBadge();
+      renderSavedRecords();
+
+      // Auto poll from Google Sheet if URL configured
+      if (getGoogleSheetUrl()) {
+        syncWithGoogleSheet(false);
+      }
+    }
+
+    function getDbProvider() {
+      return localStorage.getItem('jabra_db_provider') || 'gsheet';
+    }
+
+    function getGoogleSheetUrl() {
+      return (localStorage.getItem('jabra_gsheet_url') || 'https://script.google.com/macros/s/AKfycbz5iaVtOKWLH1d9e2XwcCko256tXfI6GYZ8gTFs-duf0WM4zxXIQM7--zhY7uIAejH13Q/exec').trim();
+    }
+
+    function onDbProviderChange(provider) {
+      localStorage.setItem('jabra_db_provider', provider);
+      loadGoogleSheetConfig();
+    }
+
+    function loadGoogleSheetConfig() {
+      const provider = getDbProvider();
+      const url = getGoogleSheetUrl();
+      const directUrl = (localStorage.getItem('jabra_gsheet_direct') || '').trim();
+
+      const providerSelect = document.getElementById('dbProviderSelect');
+      const input = document.getElementById('gsheetWebAppUrl');
+      const directInput = document.getElementById('gsheetDirectUrl');
+      const openLink = document.getElementById('openSheetLink');
+      const statusText = document.getElementById('gsheetStatusText');
+      const dot = document.getElementById('syncDot');
+      const webhookLabel = document.getElementById('webhookUrlLabel');
+      const directLabel = document.getElementById('directUrlLabel');
+      const guideOneDrive = document.getElementById('guideOneDrive');
+      const guideGoogleSheet = document.getElementById('guideGoogleSheet');
+
+      if (providerSelect) providerSelect.value = provider;
+      if (input) {
+        input.value = url;
+        input.placeholder = provider === 'onedrive'
+          ? 'https://prod-XX.southeastasia.logic.azure.com:443/workflows/...'
+          : 'https://script.google.com/macros/s/AKfycbx.../exec';
+      }
+      if (directInput) {
+        directInput.value = directUrl;
+        directInput.placeholder = provider === 'onedrive'
+          ? 'https://ibm.sharepoint.com/.../Jabra_Floorwalk_Logs.xlsx'
+          : 'https://docs.google.com/spreadsheets/d/.../edit';
+      }
+
+      if (webhookLabel) {
+        webhookLabel.innerText = provider === 'onedrive'
+          ? 'Webhook URL (Power Automate HTTP POST)'
+          : 'Web App URL (Google Apps Script)';
+      }
+      if (directLabel) {
+        directLabel.innerText = provider === 'onedrive'
+          ? 'Direct OneDrive / SharePoint Excel Link'
+          : 'Direct Google Sheet Link';
+      }
+
+      if (guideOneDrive && guideGoogleSheet) {
+        guideOneDrive.style.display = provider === 'onedrive' ? 'block' : 'none';
+        guideGoogleSheet.style.display = provider === 'gsheet' ? 'block' : 'none';
+      }
+
+      if (openLink) {
+        if (directUrl) {
+          openLink.href = directUrl;
+          openLink.innerText = provider === 'onedrive' ? '🔗 Open OneDrive Excel' : '🔗 Open Google Sheet';
+          openLink.style.display = 'inline-flex';
+        } else {
+          openLink.style.display = 'none';
+        }
+      }
+
+      const providerTitle = provider === 'onedrive' ? 'OneDrive' : 'Google Sheet';
+
+      // Update header pill
+      if (url) {
+        dot.className = 'sync-dot';
+        statusText.innerText = `${providerTitle} Connected`;
+      } else {
+        dot.className = 'sync-dot offline';
+        statusText.innerText = `Local (Setup ${providerTitle})`;
+      }
+
+      // Update Settings tab: connection badge
+      const badge = document.getElementById('settingsConnectionBadge');
+      if (badge) {
+        if (url) {
+          badge.innerHTML = `<span class="status-pill status-pill-connected">● Connected</span>`;
+        } else {
+          badge.innerHTML = `<span class="status-pill status-pill-disconnected">○ Not Connected</span>`;
+        }
+      }
+
+      // Update Settings tab: sync action bar status text
+      const syncStatus = document.getElementById('settingsSyncStatus');
+      if (syncStatus) {
+        syncStatus.innerText = url
+          ? `Connected to ${providerTitle}. Click Sync Now to pull the latest records.`
+          : `No database connected. Enter a Webhook URL below and click Save & Connect.`;
+      }
+
+      // Update Settings tab: webhook connection status indicator
+      const connStatus = document.getElementById('webhookConnectionStatus');
+      if (connStatus) {
+        if (url) {
+          connStatus.innerHTML = `<span class="status-pill status-pill-connected" style="font-size:0.75rem;">✓ URL saved — ${escapeHtml(url.length > 60 ? url.substring(0,57)+'…' : url)}</span>`;
+        } else {
+          connStatus.innerHTML = '';
+        }
+      }
+    }
+
+    function saveGoogleSheetUrl() {
+      const provider = getDbProvider();
+      const input = document.getElementById('gsheetWebAppUrl');
+      const val = input.value.trim();
+      if (!val) {
+        localStorage.removeItem('jabra_gsheet_url');
+        loadGoogleSheetConfig();
+        showToast(`${provider === 'onedrive' ? 'OneDrive' : 'Google Sheet'} webhook URL cleared. Using local mode.`);
+        return;
+      }
+
+      localStorage.setItem('jabra_gsheet_url', val);
+      loadGoogleSheetConfig();
+      showToast(`${provider === 'onedrive' ? 'OneDrive' : 'Google Sheet'} webhook URL saved!`);
+      syncWithGoogleSheet(true);
+    }
+
+    function copyPowerAutomateSchema() {
+      const code = document.getElementById('powerAutomateSchema').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("Power Automate schema copied to clipboard!");
+      }).catch(() => {
+        alert("Copy Power Automate schema manually from the snippet box.");
+      });
+    }
+
+    function saveDirectSheetUrl() {
+      const directInput = document.getElementById('gsheetDirectUrl');
+      const val = directInput.value.trim();
+      if (val) {
+        localStorage.setItem('jabra_gsheet_direct', val);
+      } else {
+        localStorage.removeItem('jabra_gsheet_direct');
+      }
+      loadGoogleSheetConfig();
+    }
+
+    function copySnippet() {
+      const code = document.getElementById('appsScriptSnippet').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("Apps Script code copied to clipboard!");
+      }).catch(() => {
+        alert("Copy Apps Script code manually from the snippet box.");
+      });
+    }
+
+    function copyManifest() {
+      const code = document.getElementById('appsScriptManifest').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("appsscript.json copied to clipboard!");
+      }).catch(() => {
+        alert("Copy the manifest manually from the snippet box.");
+      });
+    }
+
+    function loadAppVersionAndNotes() {
+      const savedVersion = localStorage.getItem('jabra_app_version');
+      const headerVer = document.getElementById('headerAppVersion');
+      const inputVer = document.getElementById('appVersionInput');
+      
+      const currentVersion = savedVersion || (headerVer ? headerVer.innerText.trim() : '1.0.1');
+      if (headerVer) headerVer.innerText = currentVersion;
+      if (inputVer) inputVer.value = currentVersion;
+
+      const notes = localStorage.getItem('jabra_app_release_notes') || '';
+      const notesArea = document.getElementById('appReleaseNotes');
+      if (notesArea && notes) notesArea.value = notes;
+    }
+
+    function saveAppVersion(showToastMessage = false) {
+      const inputVer = document.getElementById('appVersionInput');
+      const headerVer = document.getElementById('headerAppVersion');
+      const ver = (inputVer && inputVer.value ? inputVer.value : (headerVer ? headerVer.innerText : '1.0.1')).trim();
+      
+      localStorage.setItem('jabra_app_version', ver);
+      if (headerVer) headerVer.innerText = ver;
+      if (inputVer) inputVer.value = ver;
+      if (showToastMessage) {
+        showToast(`App Version updated to ${ver}`);
+      }
+    }
+
+    async function saveAndSyncVersion(showToastMessage = true) {
+      // 1. Update & save version locally
+      const inputVer = document.getElementById('appVersionInput');
+      const headerVer = document.getElementById('headerAppVersion');
+      const ver = (inputVer && inputVer.value ? inputVer.value : (headerVer ? headerVer.innerText : '1.0.1')).trim();
+      
+      localStorage.setItem('jabra_app_version', ver);
+      if (headerVer) headerVer.innerText = ver;
+      if (inputVer) inputVer.value = ver;
+
+      // 2. Save notes locally
+      const notesArea = document.getElementById('appReleaseNotes');
+      const notes = (notesArea ? notesArea.value : '').trim();
+      localStorage.setItem('jabra_app_release_notes', notes);
+
+      const statusSpan = document.getElementById('versionNotesStatus');
+      if (statusSpan) {
+        statusSpan.innerText = 'Saved ✓';
+        setTimeout(() => { if (statusSpan) statusSpan.innerText = ''; }, 2500);
+      }
+
+      // 3. Sync to Google Sheets cloud
+      const url = getGoogleSheetUrl();
+      if (!url) {
+        if (showToastMessage) showToast(`✓ Version ${ver} & notes saved locally (Configure Sheet in Settings to sync to cloud)`);
+        return;
+      }
+
+      const payload = {
+        action: "SYNC_APP_VERSION",
+        version: ver,
+        notes: notes,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (showToastMessage) showToast(`✓ Version ${ver} & notes saved and synced to Google Sheet!`);
+      } catch (err) {
+        if (showToastMessage) showToast(`✓ Version ${ver} saved locally (Could not reach cloud).`);
+      }
+    }
+
+    function saveAppReleaseNotes(showToastMessage = false) {
+      return saveAndSyncVersion(showToastMessage);
+    }
+
+    function syncVersionToGoogleSheet(manual = true) {
+      return saveAndSyncVersion(manual);
+    }
+
+    function sendVersionEmail() {
+      const headerVer = document.getElementById('headerAppVersion');
+      const inputVer = document.getElementById('appVersionInput');
+      const version = (inputVer && inputVer.value ? inputVer.value : (headerVer ? headerVer.innerText : '1.0.1')).trim();
+      const notesArea = document.getElementById('appReleaseNotes');
+      const notes = (notesArea ? notesArea.value : '').trim();
+
+      const subject = encodeURIComponent(`Jabra Floorwalk Checklist - Version ${version} Update`);
+      
+      // Unicode Bold Characters for true visual bolding in plain text / mailto email clients
+      // "𝗗𝗼𝗻'𝘁 𝗳𝗼𝗿𝗴𝗲𝘁 𝘁𝗼 𝘀𝗲𝘁 𝘂𝗽 𝘁𝗵𝗲 𝗚𝗼𝗼𝗴𝗹𝗲 𝗦𝗵𝗲𝗲𝘁 𝗶𝗻 𝘁𝗵𝗲 𝗦𝗲𝘁𝘁𝗶𝗻𝗴 𝗧𝗮𝗯."
+      const boldNote = "𝗗𝗼𝗻'𝘁 𝗳𝗼𝗿𝗴𝗲𝘁 𝘁𝗼 𝘀𝗲𝘁 𝘂𝗽 𝘁𝗵𝗲 𝗚𝗼𝗼𝗴𝗹𝗲 𝗦𝗵𝗲𝗲𝘁 𝗶𝗻 𝘁𝗵𝗲 𝗦𝗲𝘁𝘁𝗶𝗻𝗴 𝗧𝗮𝗯.";
+      
+      const bodyText = `Hi Team,\n\nIf you are using mobile devices, download the attached html file to update the changes of this version.\n\n${boldNote}\nhttps://script.google.com/macros/s/AKfycbyrt7r8527RGnYSt3XXJsHtna82NtnmpbOooGSEU8ha1FvgvG998uCBWACkelmzuN3YNg/exec\n\nPlease see the latest update for Jabra Floorwalk Checklist application:\n\nApplication Version: ${version}\n\nUpdate Notes / Changelog:\n${notes ? notes : 'No notes specified.'}\n\n\nThank You, \nTelephony Checklist`;
+      const body = encodeURIComponent(bodyText);
+
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+      showToast('Opening default email client...');
+    }
+
+    // Format Date to MM/DD/YYYY in GMT+8 (Asia/Singapore / Asia/Manila, UTC+8)
+    function formatDateMMDDYYYY(d) {
+      if (!d) return '';
+      const dateObj = (d instanceof Date) ? d : new Date(d);
+      if (isNaN(dateObj.getTime())) {
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(d))) return String(d);
+        const parts = String(d).split('-');
+        if (parts.length === 3) return `${parts[1]}/${parts[2]}/${parts[0]}`;
+        return String(d);
+      }
+      try {
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Singapore',
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
+        });
+        return formatter.format(dateObj);
+      } catch (e) {
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        const yyyy = dateObj.getFullYear();
+        return `${mm}/${dd}/${yyyy}`;
+      }
+    }
+
+    // Format Time to 12-hour hh:mm:ss AM/PM in GMT+8 (UTC+8)
+    function formatTime12Hr(t) {
+      if (!t) return '';
+      if (t instanceof Date) {
+        try {
+          return new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Singapore',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          }).format(t);
+        } catch (e) {
+          let hours = t.getHours();
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12 || 12;
+          const hh = String(hours).padStart(2, '0');
+          const mm = String(t.getMinutes()).padStart(2, '0');
+          const ss = String(t.getSeconds()).padStart(2, '0');
+          return `${hh}:${mm}:${ss} ${ampm}`;
+        }
+      }
+
+      const str = String(t).trim();
+
+      // Check if already 12-hour format "hh:mm:ss AM/PM" or "h:mm:ss AM/PM"
+      const ampmSecMatch = str.match(/^(\d{1,2}):(\d{2}):(\d{2})\s*([AP]M)$/i);
+      if (ampmSecMatch) {
+        const hh = String(parseInt(ampmSecMatch[1], 10)).padStart(2, '0');
+        return `${hh}:${ampmSecMatch[2]}:${ampmSecMatch[3]} ${ampmSecMatch[4].toUpperCase()}`;
+      }
+
+      // 12-hour format without seconds "hh:mm AM/PM"
+      const ampmNoSecMatch = str.match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
+      if (ampmNoSecMatch) {
+        const hh = String(parseInt(ampmNoSecMatch[1], 10)).padStart(2, '0');
+        return `${hh}:${ampmNoSecMatch[2]}:00 ${ampmNoSecMatch[3].toUpperCase()}`;
+      }
+
+      // Check if 24-hour format "HH:mm:ss" or "HH:mm"
+      const militaryMatch = str.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (militaryMatch) {
+        let hour = parseInt(militaryMatch[1], 10);
+        const mm = militaryMatch[2];
+        const ss = militaryMatch[3] ? militaryMatch[3] : '00';
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12 || 12;
+        const hh = String(hour).padStart(2, '0');
+        return `${hh}:${mm}:${ss} ${ampm}`;
+      }
+
+      // Try ISO/full Date parsing in GMT+8
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) {
+        try {
+          return new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Singapore',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          }).format(parsed);
+        } catch (e) {
+          let hours = parsed.getHours();
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12 || 12;
+          const hh = String(hours).padStart(2, '0');
+          const mm = String(parsed.getMinutes()).padStart(2, '0');
+          const ss = String(parsed.getSeconds()).padStart(2, '0');
+          return `${hh}:${mm}:${ss} ${ampm}`;
+        }
+      }
+
+      return str;
+    }
+
+    // Set Date & Time in GMT+8 (UTC+8)
+    function setDateTimeNow(showToastMsg = true) {
+      const now = new Date();
+      const dateStr = formatDateMMDDYYYY(now);
+      const timeStr = formatTime12Hr(now);
+
+      document.getElementById('inspectionDate').value = dateStr;
+      document.getElementById('inspectionTime').value = timeStr;
+
+      if (showToastMsg) {
+        showToast("Date & Time set to GMT+8 (" + dateStr + " " + timeStr + ")");
+      }
+    }
+
+    let activeFilterType = 'ALL'; // 'ALL', floor (e.g. '5'), or building (e.g. 'UPAE')
+
+    function renderTable() {
+      const tbody = document.getElementById('checklistTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      ROOMS_DATA.forEach((room, index) => {
+        if (!checklistState[room.id]) {
+          checklistState[room.id] = {
+            status: null,
+            timestamp: '',
+            presetRemark: room.defaultRemark || '',
+            customRemark: room.defaultRemark || ''
+          };
+        }
+
+        const state = checklistState[room.id];
+        const tr = document.createElement('tr');
+        tr.id = `room-row-${room.id}`;
+        tr.setAttribute('data-floor', room.floor);
+        tr.setAttribute('data-building', room.building);
+        
+        if (activeFilterType !== 'ALL') {
+          const matchesFloor = String(room.floor) === String(activeFilterType);
+          const matchesBuilding = String(room.building).toUpperCase() === String(activeFilterType).toUpperCase();
+          if (!matchesFloor && !matchesBuilding) {
+            tr.style.display = 'none';
+          }
+        }
+        if (state.status === 'PASS') tr.className = 'row-passed';
+        else if (state.status === 'FAIL') tr.className = 'row-issue';
+
+        let selectOptionsHtml = '';
+        PRESET_REMARKS.forEach(opt => {
+          const isSelected = (opt === state.presetRemark) || (state.presetRemark === "" && opt.startsWith("--"));
+          selectOptionsHtml += `<option value="${opt === PRESET_REMARKS[0] ? '' : escapeHtml(opt)}" ${isSelected ? 'selected' : ''}>${escapeHtml(opt)}</option>`;
+        });
+
+        tr.innerHTML = `
+          <td style="color:var(--text-muted); font-weight:600;">${index + 1}</td>
+          <td><span style="font-weight:600;">${escapeHtml(room.building)}</span></td>
+          <td><span class="floor-badge">Floor ${escapeHtml(room.floor)}</span></td>
+          <td><span class="space-title">${escapeHtml(room.spaceName)}</span></td>
+          <td>
+            <div class="status-group">
+              <button type="button" class="status-btn pass ${state.status === 'PASS' ? 'active' : ''}" onclick="setRowStatus(${room.id}, 'PASS')" title="Device Good">
+                ✓ Good
+              </button>
+              <button type="button" class="status-btn fail ${state.status === 'FAIL' ? 'active' : ''}" onclick="setRowStatus(${room.id}, 'FAIL')" title="Issue Found">
+                ✗ Remarks
+              </button>
+              ${state.status ? `<button type="button" class="status-btn clear" onclick="clearRowStatus(${room.id})" title="Clear">✕</button>` : ''}
+            </div>
+          </td>
+          <td>
+            <select class="preset-dropdown" onchange="onPresetChange(${room.id}, this.value)">
+              ${selectOptionsHtml}
+            </select>
+            <input type="text" class="table-input" id="remark-input-${room.id}" placeholder="Add remarks / notes..." value="${escapeHtml(state.customRemark)}" oninput="onRemarkChange(${room.id}, this.value)">
+          </td>
+          <td>
+            <span id="timestamp-${room.id}" style="font-size:0.8rem; color:var(--text-muted); font-family:monospace;">
+              ${state.timestamp ? formatTime12Hr(state.timestamp) : '—'}
+            </span>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      updateProgress();
+    }
+
+    function setRowStatus(roomId, status) {
+      const st = checklistState[roomId];
+      st.status = status;
+      if (!st.timestamp) {
+        const now = new Date();
+        st.timestamp = formatTime12Hr(now);
+      }
+
+      if (status === 'PASS') {
+        if (!st.customRemark || st.customRemark.toLowerCase().includes("issue") || st.customRemark.toLowerCase().includes("no vision")) {
+          st.customRemark = 'Good / No issue found';
+        }
+      } else if (status === 'FAIL') {
+        if (st.customRemark === 'Good / No issue found') {
+          st.customRemark = '';
+        }
+      }
+
+      renderTable();
+      saveDraft();
+    }
+
+    function clearRowStatus(roomId) {
+      checklistState[roomId].status = null;
+      checklistState[roomId].timestamp = '';
+      checklistState[roomId].customRemark = '';
+      checklistState[roomId].presetRemark = '';
+      renderTable();
+      saveDraft();
+    }
+
+    function onPresetChange(roomId, value) {
+      checklistState[roomId].presetRemark = value;
+      if (value) {
+        checklistState[roomId].customRemark = value;
+        const input = document.getElementById(`remark-input-${roomId}`);
+        if (input) input.value = value;
+        
+        // When any preset remark is selected, automatically mark the status as Issue (FAIL)
+        setRowStatus(roomId, 'FAIL');
+      }
+      saveDraft();
+    }
+
+    function onRemarkChange(roomId, value) {
+      checklistState[roomId].customRemark = value;
+      saveDraft();
+    }
+
+
+    function resetChecklistForm() {
+      if (confirm("Reset all check statuses and remarks in the form?")) {
+        checklistState = {};
+        currentEditingRecordId = null;
+        const banner = document.getElementById('editModeBanner');
+        if (banner) banner.style.display = 'none';
+        
+        ROOMS_DATA.forEach(room => {
+          checklistState[room.id] = {
+            status: null,
+            timestamp: '',
+            presetRemark: '',
+            customRemark: ''
+          };
+        });
+        clearDraft();
+        renderTable();
+        showToast("Checklist form and remarks reset.");
+      }
+    }
+
+    function cancelEditMode() {
+      if (confirm("Cancel editing this record and reset form?")) {
+        currentEditingRecordId = null;
+        const banner = document.getElementById('editModeBanner');
+        if (banner) banner.style.display = 'none';
+        resetChecklistForm();
+      }
+    }
+
+    function updateProgress() {
+      const total = ROOMS_DATA.length;
+      let completed = 0;
+      Object.values(checklistState).forEach(st => {
+        if (st.status !== null) completed++;
+      });
+
+      const pct = Math.round((completed / total) * 100);
+      document.getElementById('progressText').innerText = `${completed} / ${total} Completed`;
+      document.getElementById('progressPercent').innerText = `${pct}%`;
+      document.getElementById('progressBarFill').style.width = `${pct}%`;
+      document.getElementById('badgePending').innerText = `${total - completed} pending`;
+    }
+
+    function onSiteChange(siteKey) {
+      if (!SITE_ROOMS[siteKey]) return;
+      currentSite = siteKey;
+      ROOMS_DATA = SITE_ROOMS[siteKey];
+      checklistState = {};
+      activeFilterType = 'ALL';
+      
+      updateSiteView(siteKey);
+      renderFilterButtons();
+      renderTable();
+      saveDraft();
+      showToast(`Switched site to ${siteKey === '1800' ? '1800 Building' : (siteKey + ' Site')} (${ROOMS_DATA.length} rooms)`);
+    }
+
+    function updateSiteView(siteKey) {
+      const floorsBadge = document.getElementById('siteFloorsBadge');
+      if (floorsBadge) {
+        if (siteKey === '1800') floorsBadge.innerText = '5F.7F.8F';
+        else if (siteKey === 'UPA') floorsBadge.innerText = 'UPAE.UPAJ.UPAM';
+        else if (siteKey === 'NAGA') floorsBadge.innerText = '4F';
+      }
+      renderFilterButtons();
+    }
+
+    function renderFilterButtons() {
+      const container = document.getElementById('floorFilterContainer');
+      if (!container) return;
+
+      let html = `<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">FILTER:</span>`;
+      html += `<button class="filter-btn ${activeFilterType === 'ALL' ? 'active' : ''}" onclick="applyChecklistFilter('ALL', this)">All (${ROOMS_DATA.length})</button>`;
+
+      if (currentSite === 'UPA') {
+        // Group counts by Building for UPA Site (UPAE, UPAJ, UPA, UPAM)
+        const buildingCounts = {};
+        ROOMS_DATA.forEach(r => {
+          buildingCounts[r.building] = (buildingCounts[r.building] || 0) + 1;
+        });
+
+        Object.keys(buildingCounts).forEach(bldg => {
+          const label = `${bldg} (${buildingCounts[bldg]})`;
+          html += `<button class="filter-btn ${activeFilterType.toUpperCase() === bldg.toUpperCase() ? 'active' : ''}" onclick="applyChecklistFilter('${bldg}', this)">${label}</button>`;
+        });
+      } else {
+        // Group counts by Floor for 1800 and NAGA
+        const floorCounts = {};
+        ROOMS_DATA.forEach(r => {
+          floorCounts[r.floor] = (floorCounts[r.floor] || 0) + 1;
+        });
+
+        Object.keys(floorCounts).forEach(f => {
+          const label = (f === 'G' ? 'Ground' : `Floor ${f}`) + ` (${floorCounts[f]})`;
+          html += `<button class="filter-btn ${activeFilterType === String(f) ? 'active' : ''}" onclick="applyChecklistFilter('${f}', this)">${label}</button>`;
+        });
+      }
+
+      container.innerHTML = html;
+    }
+
+    function applyChecklistFilter(filterKey, btn) {
+      activeFilterType = String(filterKey);
+      document.querySelectorAll('#floorFilterContainer .filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) {
+        btn.classList.add('active');
+      }
+
+      const rows = document.querySelectorAll('#checklistTableBody tr');
+      rows.forEach(tr => {
+        if (filterKey === 'ALL') {
+          tr.style.display = '';
+        } else {
+          const f = tr.getAttribute('data-floor');
+          const bldg = tr.getAttribute('data-building');
+          const matches = (f && f === String(filterKey)) || (bldg && bldg.toUpperCase() === String(filterKey).toUpperCase());
+          tr.style.display = matches ? '' : 'none';
+        }
+      });
+    }
+
+    // Retain filterFloor as alias for backwards compatibility
+    function filterFloor(val, btn) {
+      applyChecklistFilter(val, btn);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      // Only toggle tab-content elements that are NOT the hidden gsheet stub
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        if (tab.id !== 'tab-gsheet') tab.classList.remove('active');
+      });
+
+      if (tabId === 'checklist') {
+        document.getElementById('tab-btn-checklist').classList.add('active');
+        document.getElementById('tab-checklist').classList.add('active');
+      } else if (tabId === 'gsheet' || tabId === 'settings') {
+        // 'gsheet' kept as alias so old references still work
+        document.getElementById('tab-btn-settings').classList.add('active');
+        document.getElementById('tab-settings').classList.add('active');
+      } else if (tabId === 'readme') {
+        document.getElementById('tab-btn-readme').classList.add('active');
+        document.getElementById('tab-readme').classList.add('active');
+      } else if (tabId === 'data') {
+        document.getElementById('tab-btn-data').classList.add('active');
+        document.getElementById('tab-data').classList.add('active');
+        renderSavedRecords();
+        // Automatically sync latest records from connected sheet
+        if (getGoogleSheetUrl()) {
+          syncWithGoogleSheet(false);
+        }
+      }
+    }
+
+    // ==========================================
+    // GOOGLE SHEETS LIVE SYNC
+    // ==========================================
+    async function syncWithGoogleSheet(manual = false) {
+      const provider = getDbProvider();
+      const providerTitle = provider === 'onedrive' ? 'OneDrive' : 'Google Sheet';
+      const url = getGoogleSheetUrl();
+      if (!url) {
+        if (manual) alert(`Please enter and save your ${providerTitle} Webhook URL first.`);
+        return;
+      }
+
+      const dot = document.getElementById('syncDot');
+      const statusText = document.getElementById('gsheetStatusText');
+      dot.className = 'sync-dot busy';
+      statusText.innerText = `Syncing ${providerTitle}...`;
+
+      try {
+        const res = await fetch(url, { method: 'GET' });
+        if (res.ok) {
+          const responseData = await res.json();
+          let recordsArray = [];
+          
+          if (Array.isArray(responseData)) {
+            recordsArray = responseData;
+          } else if (responseData && typeof responseData === 'object') {
+            if (Array.isArray(responseData.records)) {
+              recordsArray = responseData.records;
+            }
+            // Auto sync App Version & Release Notes from cloud across devices
+            if (responseData.appVersionInfo) {
+              const cloudVer = responseData.appVersionInfo.version;
+              const cloudNotes = responseData.appVersionInfo.notes;
+              if (cloudVer) {
+                localStorage.setItem('jabra_app_version', cloudVer);
+                const headerVer = document.getElementById('headerAppVersion');
+                const inputVer = document.getElementById('appVersionInput');
+                if (headerVer) headerVer.innerText = cloudVer;
+                if (inputVer) inputVer.value = cloudVer;
+              }
+              if (cloudNotes !== undefined && cloudNotes !== null) {
+                localStorage.setItem('jabra_app_release_notes', cloudNotes);
+                const notesArea = document.getElementById('appReleaseNotes');
+                if (notesArea) notesArea.value = cloudNotes;
+              }
+            }
+            // Restore inspector list from cloud (syncs across devices)
+            if (Array.isArray(responseData.inspectorsInfo) && responseData.inspectorsInfo.length > 0) {
+              localStorage.setItem(INSPECTORS_KEY, JSON.stringify(responseData.inspectorsInfo));
+              populateInspectorDropdown();
+              renderInspectorSettings();
+            }
+          }
+
+          if (Array.isArray(recordsArray)) {
+            // True synchronization: mirror database state
+            const syncedRecords = [];
+            recordsArray.forEach(r => {
+              if (r && r.id) {
+                let p = 0, iss = 0;
+                (r.details || []).forEach(d => {
+                  if (d.status === 'PASS') p++;
+                  else if (d.status === 'FAIL') iss++;
+                });
+                r.passedCount = p;
+                r.issueCount = iss;
+                syncedRecords.push(r);
+              }
+            });
+
+            syncedRecords.sort((a, b) => new Date(b.submittedAt || b.date) - new Date(a.submittedAt || a.date));
+
+            localStorage.setItem('jabra_floorwalk_history', JSON.stringify(syncedRecords));
+            updateRecordsBadge();
+            renderSavedRecords();
+
+            dot.className = 'sync-dot';
+            statusText.innerText = `${providerTitle} Synced (${syncedRecords.length})`;
+            if (manual) showToast(`✓ Successfully synchronized with ${providerTitle} (${syncedRecords.length} records)`);
+          } else {
+            dot.className = 'sync-dot';
+            statusText.innerText = `${providerTitle} Connected`;
+          }
+        } else {
+          dot.className = 'sync-dot';
+          statusText.innerText = `${providerTitle} Connected`;
+        }
+      } catch (err) {
+        dot.className = 'sync-dot';
+        statusText.innerText = `${providerTitle} Connected`;
+        if (manual) showToast(`✓ Webhook reached successfully.`);
+      }
+    }
+
+    async function pushRecordToGoogleSheet(record) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+
+      try {
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors', // Google Apps Script Web App redirects are handled via no-cors
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(record)
+        });
+      } catch (e) {
+        console.warn("Failed to push to Google Sheet:", e);
+      }
+    }
+
+    // Submit Checklist
+    async function submitChecklist() {
+      const rawDateVal = document.getElementById('inspectionDate').value.trim();
+      const timeVal = document.getElementById('inspectionTime').value;
+      const inspector = document.getElementById('inspectorName').value.trim();
+
+      if (!inspector) {
+        alert("Inspector Name is required. Please select an inspector before submitting.");
+        const inspectorInput = document.getElementById('inspectorName');
+        if (inspectorInput) {
+          inspectorInput.focus();
+          inspectorInput.style.borderColor = "var(--danger)";
+        }
+        return;
+      }
+
+      if (!rawDateVal) {
+        alert("Please set or select the Inspection Date (Required). Click 'DATE NOW' button at top.");
+        return;
+      }
+
+      const dateVal = formatDateMMDDYYYY(rawDateVal);
+      const formattedTimeVal = formatTime12Hr(timeVal || new Date());
+
+      let checkedCount = 0;
+      let issueCount = 0;
+      let missingRemarkRooms = [];
+      const details = [];
+
+      ROOMS_DATA.forEach(room => {
+        const st = checklistState[room.id] || {};
+        if (st.status) {
+          checkedCount++;
+          const remarkText = (st.customRemark || '').trim();
+          if (!remarkText) {
+            missingRemarkRooms.push(`${room.spaceName} (Floor ${room.floor})`);
+          }
+        }
+        if (st.status === 'FAIL') issueCount++;
+
+        details.push({
+          building: room.building,
+          floor: room.floor,
+          spaceName: room.spaceName,
+          status: st.status || 'UNCHECKED',
+          remark: st.customRemark || '',
+          timestamp: formatTime12Hr(st.timestamp) || ''
+        });
+      });
+
+      if (checkedCount === 0) {
+        alert("Please check at least one room before submitting.");
+        return;
+      }
+
+      if (missingRemarkRooms.length > 0) {
+        alert(
+          `⚠️ Remarks required before submitting!\n\nThe following checked room(s) are missing remarks/notes:\n- ` +
+          missingRemarkRooms.join('\n- ') +
+          `\n\nPlease select a preset or type a remark for all checked rooms.`
+        );
+        return;
+      }
+
+      const isEditing = Boolean(currentEditingRecordId);
+      const recordId = isEditing ? currentEditingRecordId : ('REC-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
+
+      const confirmMsg = isEditing
+        ? `Are you sure you want to update this inspection record (${recordId})?\n\n- Inspector: ${inspector}\n- Date: ${dateVal} ${formattedTimeVal}\n- Checked Rooms: ${checkedCount} / ${ROOMS_DATA.length}\n- Issues Found: ${issueCount}`
+        : `Are you sure you want to submit this checklist?\n\n- Inspector: ${inspector}\n- Date: ${dateVal} ${formattedTimeVal}\n- Checked Rooms: ${checkedCount} / ${ROOMS_DATA.length}\n- Issues Found: ${issueCount}`;
+
+      if (!confirm(confirmMsg)) {
+        return;
+      }
+
+      const record = {
+        id: recordId,
+        date: dateVal,
+        time: formattedTimeVal,
+        inspector: inspector,
+        totalRooms: ROOMS_DATA.length,
+        checkedCount: checkedCount,
+        issueCount: issueCount,
+        passedCount: checkedCount - issueCount,
+        submittedAt: new Date().toISOString(),
+        details: details
+      };
+
+      // Save locally (update existing if editing, or prepend new)
+      let history = getSavedRecords();
+      if (isEditing) {
+        // If connected to Google Sheet, delete previous rows for this record first to replace cleanly
+        const url = getGoogleSheetUrl();
+        if (url) {
+          try {
+            await fetch(url, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'DELETE_RECORD', recordId: recordId })
+            });
+          } catch(e) {}
+        }
+        history = history.map(r => r.id === recordId ? record : r);
+      } else {
+        history.unshift(record);
+      }
+      localStorage.setItem('jabra_floorwalk_history', JSON.stringify(history));
+
+      // Push to Google Sheets if connected
+      await pushRecordToGoogleSheet(record);
+
+      currentEditingRecordId = null;
+      clearDraft();
+      const banner = document.getElementById('editModeBanner');
+      if (banner) banner.style.display = 'none';
+
+      // Reset all form fields after submission so the form is clean for the next inspection
+      checklistState = {};
+      ROOMS_DATA.forEach(room => {
+        checklistState[room.id] = { status: null, timestamp: '', presetRemark: '', customRemark: '' };
+      });
+      const dateEl = document.getElementById('inspectionDate');
+      const timeEl = document.getElementById('inspectionTime');
+      if (dateEl) dateEl.value = '';
+      if (timeEl) timeEl.value = '';
+      populateInspectorDropdown('');
+      renderTable();
+
+      updateRecordsBadge();
+      showToast(isEditing ? `Inspection record updated successfully!` : `Data submitted & recorded! (${checkedCount} rooms recorded)`);
+
+      // Schedule server-side email alert (works even when tab/app is closed)
+      scheduleServerEmailAlert(record);
+      // Also schedule in-browser modal as fallback when tab stays open
+      scheduleRemarksNotification(record);
+
+      setTimeout(() => {
+        switchTab('data');
+      }, 600);
+    }
+
+    function getSavedRecords() {
+      try {
+        const raw = localStorage.getItem('jabra_floorwalk_history');
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function updateRecordsBadge() {
+      const records = getSavedRecords();
+      const badge = document.getElementById('recordCountBadge');
+      if (badge) badge.innerText = records.length;
+    }
+
+    let dateFilterStart = '';
+    let dateFilterEnd = '';
+    let buildingFilterQuery = '';
+
+    function onDateRangeChange() {
+      const startElem = document.getElementById('recordSearchStartDate');
+      const endElem = document.getElementById('recordSearchEndDate');
+      const buildingElem = document.getElementById('recordSearchBuilding');
+
+      dateFilterStart = startElem ? startElem.value : '';
+      dateFilterEnd = endElem ? endElem.value : '';
+      buildingFilterQuery = buildingElem ? buildingElem.value.trim().toLowerCase() : '';
+
+      renderSavedRecords();
+    }
+
+    function clearDateRangeFilter() {
+      dateFilterStart = '';
+      dateFilterEnd = '';
+      buildingFilterQuery = '';
+      const startElem = document.getElementById('recordSearchStartDate');
+      const endElem = document.getElementById('recordSearchEndDate');
+      const buildingElem = document.getElementById('recordSearchBuilding');
+      if (startElem) startElem.value = '';
+      if (endElem) endElem.value = '';
+      if (buildingElem) buildingElem.value = '';
+      renderSavedRecords();
+    }
+
+    // Add N days to YYYY-MM-DD date string
+    function addDaysToISODate(isoDateStr, days = 1) {
+      if (!isoDateStr) return '';
+      const [y, m, d] = isoDateStr.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      dt.setUTCDate(dt.getUTCDate() + days);
+      const resY = dt.getUTCFullYear();
+      const resM = String(dt.getUTCMonth() + 1).padStart(2, '0');
+      const resD = String(dt.getUTCDate()).padStart(2, '0');
+      return `${resY}-${resM}-${resD}`;
+    }
+
+    // Convert date string/object to YYYY-MM-DD for accurate comparison in GMT+8
+    function toISODateOnly(dateVal) {
+      if (!dateVal) return '';
+      if (dateVal instanceof Date && !isNaN(dateVal.getTime())) {
+        try {
+          const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Singapore',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).formatToParts(dateVal);
+          const y = parts.find(p => p.type === 'year').value;
+          const m = parts.find(p => p.type === 'month').value;
+          const d = parts.find(p => p.type === 'day').value;
+          return `${y}-${m}-${d}`;
+        } catch(e) {
+          const y = dateVal.getFullYear();
+          const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+          const d = String(dateVal.getDate()).padStart(2, '0');
+          return `${y}-${m}-${d}`;
+        }
+      }
+      const str = String(dateVal).trim();
+      // YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        return str;
+      }
+      // MM/DD/YYYY
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+        const parts = str.split('/');
+        return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+      }
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) {
+        try {
+          const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Singapore',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).formatToParts(parsed);
+          const y = parts.find(p => p.type === 'year').value;
+          const m = parts.find(p => p.type === 'month').value;
+          const d = parts.find(p => p.type === 'day').value;
+          return `${y}-${m}-${d}`;
+        } catch(e) {
+          const y = parsed.getFullYear();
+          const m = String(parsed.getMonth() + 1).padStart(2, '0');
+          const d = String(parsed.getDate()).padStart(2, '0');
+          return `${y}-${m}-${d}`;
+        }
+      }
+      return '';
+    }
+
+    function renderSavedRecords() {
+      const allRecords = getSavedRecords();
+      const container = document.getElementById('recordsContainer');
+      const emptyNotice = document.getElementById('emptyDataNotice');
+      const emptySubtext = document.getElementById('emptyDataSubtext');
+      const filterResultCount = document.getElementById('filterResultCount');
+
+      if (!container) return;
+
+      const hasFilter = Boolean(dateFilterStart || dateFilterEnd || buildingFilterQuery);
+
+      let records = allRecords;
+      if (hasFilter) {
+        records = allRecords.filter(rec => {
+          // Date range matching (+1 day buffer on open-ended "To" to include night/GY shift rollover records)
+          if (dateFilterStart || dateFilterEnd) {
+            const recIsoDate = toISODateOnly(rec.date) || toISODateOnly(rec.submittedAt);
+            if (recIsoDate) {
+              if (dateFilterStart && recIsoDate < dateFilterStart) return false;
+              if (dateFilterEnd) {
+                // When "From" is NOT set (open-ended start up to "To"), allow +1 day buffer for overnight shift records
+                const effectiveEnd = (!dateFilterStart) ? addDaysToISODate(dateFilterEnd, 1) : dateFilterEnd;
+                if (recIsoDate > effectiveEnd) return false;
+              }
+            }
+          }
+
+          // Building matching
+          if (buildingFilterQuery) {
+            const hasMatchingBuilding = (rec.details || []).some(d =>
+              String(d.building || '').toLowerCase().includes(buildingFilterQuery)
+            );
+            if (!hasMatchingBuilding) return false;
+          }
+
+          return true;
+        });
+      }
+
+      if (filterResultCount) {
+        if (hasFilter) {
+          let filterSummary = [];
+          if (dateFilterStart && dateFilterEnd) filterSummary.push(`${formatDateMMDDYYYY(dateFilterStart)} to ${formatDateMMDDYYYY(dateFilterEnd)}`);
+          else if (dateFilterStart) filterSummary.push(`From ${formatDateMMDDYYYY(dateFilterStart)}`);
+          else if (dateFilterEnd) filterSummary.push(`Until ${formatDateMMDDYYYY(dateFilterEnd)} (+1 day window)`);
+          if (buildingFilterQuery) filterSummary.push(`Building: ${buildingFilterQuery.toUpperCase()}`);
+
+          filterResultCount.innerText = `Showing ${records.length} of ${allRecords.length} record(s) [${filterSummary.join(', ')}]`;
+        } else {
+          filterResultCount.innerText = `Total: ${allRecords.length} record(s)`;
+        }
+      }
+
+      if (records.length === 0) {
+        emptyNotice.style.display = 'block';
+        if (emptySubtext) {
+          if (hasFilter) {
+            let filterDesc = [];
+            if (dateFilterStart && dateFilterEnd) filterDesc.push(`between ${formatDateMMDDYYYY(dateFilterStart)} and ${formatDateMMDDYYYY(dateFilterEnd)}`);
+            else if (dateFilterStart) filterDesc.push(`from ${formatDateMMDDYYYY(dateFilterStart)} onwards`);
+            else if (dateFilterEnd) filterDesc.push(`up to ${formatDateMMDDYYYY(dateFilterEnd)} (+1 day GY shift window)`);
+            if (buildingFilterQuery) filterDesc.push(`in building "${escapeHtml(buildingFilterQuery.toUpperCase())}"`);
+
+            emptySubtext.innerHTML = `No records found for filter (${filterDesc.join(', ')}). Click <strong>Clear Filter</strong> to view all.`;
+          } else {
+            emptySubtext.innerHTML = `Complete the checklist in Sheet1 and click <strong>SUBMIT</strong> to record data.`;
+          }
+        }
+        container.innerHTML = '';
+        return;
+      }
+
+      emptyNotice.style.display = 'none';
+      container.innerHTML = '';
+
+      records.forEach((rec) => {
+        const card = document.createElement('div');
+        card.className = 'record-card';
+        card.setAttribute('data-rec-id', rec.id);
+        // Store serialised details on the element for sort re-renders (avoids re-reading localStorage)
+        card.setAttribute('data-details', JSON.stringify(rec.details || []));
+        card.setAttribute('data-sort', 'all');
+
+        const recId = rec.id;
+
+        card.innerHTML = `
+          <div class="record-header">
+            <div>
+              <strong style="font-size:1.05rem;">📅 Inspection: ${escapeHtml(formatDateMMDDYYYY(rec.date))} (${escapeHtml(formatTime12Hr(rec.time))})</strong>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                Inspector: <strong>${escapeHtml(rec.inspector)}</strong> | Building: <strong>${escapeHtml((rec.details && rec.details[0] && rec.details[0].building) || '—')}</strong> | ID: ${escapeHtml(recId)}
+              </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button class="pill-badge pill-success pill-sort-btn" style="border:none;cursor:pointer;" onclick="sortCardDetails('${recId}','PASS')" title="Click to show Passed rooms first">${rec.passedCount || 0} Passed</button>
+              ${(rec.issueCount && rec.issueCount > 0) ? `<button class="pill-badge pill-sort-btn" style="background:#fee2e2;color:#991b1b;border:none;cursor:pointer;" onclick="sortCardDetails('${recId}','FAIL')" title="Click to show Remarked first">${rec.issueCount} Remarked</button>` : ''}
+              <button class="btn btn-sm btn-outline-primary" onclick="editRecord('${recId}')" title="Load into checklist to edit or recheck">✏️ Edit / Recheck</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('${recId}')">Delete</button>
+            </div>
+          </div>
+          <div class="table-responsive" style="max-height: 260px; overflow-y: auto;">
+            <table class="checklist-table">
+              <thead>
+                <tr style="background:#f8fafc;">
+                  <th>Huddle Room</th>
+                  <th>Status</th>
+                  <th>Remarks</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="card-tbody-${recId}">
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        container.appendChild(card);
+        // Render the tbody with default (all) order
+        renderCardTbody(recId, rec.details || [], 'all');
+      });
+    }
+
+    function buildDetailRow(d) {
+      const statusBadge = d.status === 'PASS'
+        ? '<span class="pill-badge pill-success">✓ Good</span>'
+        : (d.status === 'FAIL'
+          ? '<span class="pill-badge" style="background:#fee2e2;color:#991b1b;">✗ Remarks</span>'
+          : '<span class="pill-badge" style="background:#f1f5f9;color:#64748b;">Unchecked</span>');
+      return `
+        <tr style="font-size:0.85rem;">
+          <td><strong>${escapeHtml(d.spaceName)}</strong></td>
+          <td>${statusBadge}</td>
+          <td>${escapeHtml(d.remark || '—')}</td>
+          <td style="font-family:monospace;color:var(--text-muted);">${escapeHtml(formatTime12Hr(d.timestamp) || '—')}</td>
+        </tr>`;
+    }
+
+    function renderCardTbody(recId, details, sortMode) {
+      const tbody = document.getElementById('card-tbody-' + recId);
+      if (!tbody) return;
+
+      let sorted;
+      if (sortMode === 'PASS') {
+        sorted = [...details].sort((a, b) => {
+          const order = { PASS: 0, FAIL: 1, UNCHECKED: 2 };
+          return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+        });
+      } else if (sortMode === 'FAIL') {
+        sorted = [...details].sort((a, b) => {
+          const order = { FAIL: 0, PASS: 1, UNCHECKED: 2 };
+          return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+        });
+      } else {
+        sorted = details; // original order
+      }
+
+      tbody.innerHTML = sorted.map(buildDetailRow).join('');
+    }
+
+    function sortCardDetails(recId, clickedStatus) {
+      const card = document.querySelector(`[data-rec-id="${recId}"]`);
+      if (!card) return;
+
+      const details = JSON.parse(card.getAttribute('data-details') || '[]');
+      const currentSort = card.getAttribute('data-sort');
+
+      // Toggle: clicking the same filter again resets to original order
+      const newSort = (currentSort === clickedStatus) ? 'all' : clickedStatus;
+      card.setAttribute('data-sort', newSort);
+
+      // Update badge styles to show which is active
+      card.querySelectorAll('.pill-sort-btn').forEach(btn => {
+        btn.style.outline = 'none';
+        btn.style.boxShadow = 'none';
+        btn.style.fontWeight = '600';
+      });
+      if (newSort !== 'all') {
+        const activeBtn = card.querySelector(`[onclick="sortCardDetails('${recId}','${newSort}')"]`);
+        if (activeBtn) {
+          activeBtn.style.outline = '2px solid currentColor';
+          activeBtn.style.boxShadow = '0 0 0 3px rgba(0,0,0,0.08)';
+        }
+      }
+
+      renderCardTbody(recId, details, newSort);
+      showToast(newSort === 'all'
+        ? 'Showing all rooms (original order)'
+        : `Sorted: ${newSort === 'PASS' ? 'Passed' : 'Issues'} first`);
+    }
+
+    function editRecord(recId) {
+      const records = getSavedRecords();
+      const rec = records.find(r => r.id === recId);
+      if (!rec) {
+        alert("Record not found.");
+        return;
+      }
+
+      // Cancel any pending server-side email alert for this record
+      cancelServerEmailAlert(recId);
+
+      currentEditingRecordId = rec.id;
+
+      // --- Detect site from the record's building names and switch to it ---
+      const buildings = (rec.details || []).map(d => String(d.building || '').toUpperCase());
+      let detectedSite = '1800'; // default
+      if (buildings.some(b => b.startsWith('UPA'))) {
+        detectedSite = 'UPA';
+      } else if (buildings.some(b => b.startsWith('NAGA'))) {
+        detectedSite = 'NAGA';
+      } else if (buildings.some(b => b === '1800')) {
+        detectedSite = '1800';
+      }
+
+      // Switch site silently (no state-reset side effects from onSiteChange)
+      if (detectedSite !== currentSite) {
+        currentSite = detectedSite;
+        ROOMS_DATA = SITE_ROOMS[detectedSite];
+        activeFilterType = 'ALL';
+        const siteDropdown = document.getElementById('selectedSiteDropdown');
+        if (siteDropdown) siteDropdown.value = detectedSite;
+        updateSiteView(detectedSite);
+      }
+
+      // Populate metadata
+      const dateInput = document.getElementById('inspectionDate');
+      const timeInput = document.getElementById('inspectionTime');
+
+      if (dateInput) dateInput.value = formatDateMMDDYYYY(rec.date);
+      if (timeInput) timeInput.value = formatTime12Hr(rec.time);
+      populateInspectorDropdown(rec.inspector || '');
+
+      // Populate room checklist states
+      checklistState = {};
+      ROOMS_DATA.forEach(room => {
+        const found = (rec.details || []).find(d =>
+          (d.spaceName && d.spaceName.toLowerCase() === room.spaceName.toLowerCase()) ||
+          (d.floor === room.floor && d.spaceName === room.spaceName)
+        );
+
+        if (found && found.status && found.status !== 'UNCHECKED') {
+          checklistState[room.id] = {
+            status: found.status,
+            timestamp: found.timestamp ? formatTime12Hr(found.timestamp) : '',
+            presetRemark: found.remark || '',
+            customRemark: found.remark || ''
+          };
+        } else {
+          checklistState[room.id] = {
+            status: null,
+            timestamp: '',
+            presetRemark: '',
+            customRemark: ''
+          };
+        }
+      });
+
+      // Show Edit Mode Banner
+      const banner = document.getElementById('editModeBanner');
+      const bannerId = document.getElementById('editModeRecordId');
+      if (banner && bannerId) {
+        bannerId.innerText = rec.id;
+        banner.style.display = 'flex';
+      }
+
+      // Switch to Checklist tab and render table
+      switchTab('checklist');
+      renderFilterButtons();
+      renderTable();
+      showToast(`Loaded "${rec.id}" into Checklist for editing.`);
+    }
+
+    async function deleteRecord(recId) {
+      if (!confirm(`Are you sure you want to delete inspection record "${recId}" from history and connected database?`)) {
+        return;
+      }
+
+      // Cancel any pending server-side email alert for this record
+      cancelServerEmailAlert(recId);
+
+      // Delete locally
+      let history = getSavedRecords();
+      history = history.filter(r => r.id !== recId);
+      localStorage.setItem('jabra_floorwalk_history', JSON.stringify(history));
+      updateRecordsBadge();
+      renderSavedRecords();
+
+      // Delete from Google Sheet database if connected
+      const url = getGoogleSheetUrl();
+      if (url) {
+        try {
+          await fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'DELETE_RECORD', recordId: recId })
+          });
+          showToast(`Record ${recId} deleted from local history & database.`);
+        } catch (e) {
+          showToast(`Record ${recId} deleted locally (could not reach database).`);
+        }
+      } else {
+        showToast(`Record ${recId} deleted.`);
+      }
+    }
+
+    // Helper to generate and download Excel (.csv / .xls compatible) backup file
+    function exportRecordsToExcelFile(recordsList, filenamePrefix = "Jabra_Floorwalk_Backup") {
+      if (!recordsList || recordsList.length === 0) return false;
+
+      let csv = "Record_ID,Inspection_Date,Inspection_Time,Inspector,Building,Floor,Huddle_Room,Status,Remarks,Checked_Time,Submitted_At\r\n";
+
+      recordsList.forEach(rec => {
+        if (!rec.details || !Array.isArray(rec.details)) return;
+
+        rec.details.forEach(d => {
+          const row = [
+            rec.id || '',
+            `"${formatDateMMDDYYYY(rec.date)}"`,
+            `"${formatTime12Hr(rec.time)}"`,
+            `"${(rec.inspector || '').replace(/"/g, '""')}"`,
+            d.building || '1800 Building',
+            d.floor || '',
+            `"${(d.spaceName || '').replace(/"/g, '""')}"`,
+            d.status || 'UNCHECKED',
+            `"${(d.remark || '').replace(/"/g, '""')}"`,
+            `"${formatTime12Hr(d.timestamp)}"`,
+            `"${formatDateMMDDYYYY(rec.submittedAt || rec.date)}"`
+          ];
+          csv += row.join(",") + "\r\n";
+        });
+      });
+
+      // UTF-8 BOM (\uFEFF) ensures Excel opens special characters and formatted dates/times seamlessly
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      const todayFormatted = formatDateMMDDYYYY(new Date()).replace(/\//g, '-');
+      const timeTag = new Date().toTimeString().split(' ')[0].replace(/:/g, '');
+      link.setAttribute("download", `${filenamePrefix}_${todayFormatted}_${timeTag}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return true;
+    }
+
+    async function clearAllRecordedData() {
+      const records = getSavedRecords();
+      if (records.length === 0) {
+        alert("No recorded inspection history to clear.");
+        return;
+      }
+
+      const confirmed = confirm(
+        "⚠️ WARNING: CLEAR ENTIRE DATABASE & HISTORY\n\n" +
+        "Are you sure you want to permanently delete ALL recorded floorwalk inspections from both local history and the connected Google Sheets database?\n\n" +
+        "ℹ️ An Excel backup file will be automatically downloaded before deletion.\n\n" +
+        "Click OK to backup and proceed with deletion."
+      );
+
+      if (!confirmed) return;
+
+      // Automatically backup all existing records to Excel file before deleting
+      try {
+        exportRecordsToExcelFile(records, "Jabra_Floorwalk_PreDelete_Backup");
+      } catch (backupErr) {
+        console.error("Backup before deletion failed:", backupErr);
+      }
+
+      // Clear local history
+      localStorage.removeItem('jabra_floorwalk_history');
+      updateRecordsBadge();
+      renderSavedRecords();
+
+      // Clear Google Sheets database if connected
+      const url = getGoogleSheetUrl();
+      if (url) {
+        try {
+          await fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'CLEAR_ALL', timestamp: new Date().toISOString() })
+          });
+          showToast("All recorded data and database rows have been permanently cleared.");
+        } catch (e) {
+          showToast("Local history cleared. (Could not reach Google Sheet database to clear remotely).");
+        }
+      } else {
+        showToast("All recorded local data has been cleared.");
+      }
+    }
+
+    // Helper to get records filtered by current date/building search if active
+    function getFilteredRecords() {
+      const allRecords = getSavedRecords();
+      const hasFilter = Boolean(dateFilterStart || dateFilterEnd || buildingFilterQuery);
+      if (!hasFilter) return allRecords;
+
+      return allRecords.filter(rec => {
+        if (dateFilterStart || dateFilterEnd) {
+          const recIsoDate = toISODateOnly(rec.date) || toISODateOnly(rec.submittedAt);
+          if (recIsoDate) {
+            if (dateFilterStart && recIsoDate < dateFilterStart) return false;
+            if (dateFilterEnd) {
+              const effectiveEnd = (!dateFilterStart) ? addDaysToISODate(dateFilterEnd, 1) : dateFilterEnd;
+              if (recIsoDate > effectiveEnd) return false;
+            }
+          }
+        }
+
+        if (buildingFilterQuery) {
+          const hasMatchingBuilding = (rec.details || []).some(d =>
+            String(d.building || '').toLowerCase().includes(buildingFilterQuery)
+          );
+          if (!hasMatchingBuilding) return false;
+        }
+
+        return true;
+      });
+    }
+
+    // Export Recorded History to CSV (only exports records in recorded history, respecting active search filter)
+    function exportDataToCSV() {
+      const records = getFilteredRecords();
+      if (!records || records.length === 0) {
+        alert("No recorded inspection history found to export.");
+        return;
+      }
+
+      exportRecordsToExcelFile(records, "Jabra_Floorwalk_History");
+      showToast(`Exported ${records.length} recorded history inspection(s) to Excel.`);
+    }
+
+    // ==========================================
+    // SERVER-SIDE EMAIL ALERT (via webhook GET)
+    // Works even when the app/tab is closed
+    // ==========================================
+    function scheduleServerEmailAlert(record) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+
+      const remarkedRooms = (record.details || []).filter(d => d.status === 'FAIL');
+      if (!remarkedRooms.length) return;
+
+      const todayISO = toISODateOnly(new Date());
+      const recISO  = toISODateOnly(record.submittedAt || record.date);
+      if (recISO !== todayISO) return;
+
+      const inspectors = getInspectors();
+      const match = inspectors.find(ins => ins.name.toLowerCase() === (record.inspector || '').toLowerCase());
+      const toEmail = (match && match.email) ? match.email : '';
+      if (!toEmail) { showToast('⚠️ Inspector has no email — add one in Settings to enable email alerts.', 6000); return; }
+
+      const params = new URLSearchParams({
+        action: 'SCHEDULE_EMAIL_ALERT',
+        recordId: record.id,
+        inspector: record.inspector || '',
+        toEmail: toEmail,
+        date: record.date || '',
+        delayMinutes: '2',
+        remarkedRooms: JSON.stringify(remarkedRooms.map(d => ({ spaceName: d.spaceName, remark: d.remark || '' })))
+      });
+
+      fireAndForgetGet(url, params);
+      showToast('✅ Email alert scheduled — inspector will be notified in 2 mins.', 5000);
+    }
+
+    function cancelServerEmailAlert(recordId) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+      const params = new URLSearchParams({ action: 'CANCEL_EMAIL_ALERT', recordId: recordId });
+      fireAndForgetGet(url, params);
+    }
+
+    function fireAndForgetGet(url, params) {
+      // Hidden iframe form submit — bypasses CORS, works with Apps Script redirects
+      const iframeName = '_ffFrame_' + Date.now();
+      const iframe = document.createElement('iframe');
+      iframe.name = iframeName;
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
+      const form = document.createElement('form');
+      form.method = 'GET';
+      form.action = url;
+      form.target = iframeName;
+      params.forEach(function(val, key) {
+        const inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = key;
+        inp.value = val;
+        form.appendChild(inp);
+      });
+      document.body.appendChild(form);
+      form.submit();
+
+      setTimeout(function() {
+        try { document.body.removeChild(form); } catch(e) {}
+        try { document.body.removeChild(iframe); } catch(e) {}
+      }, 8000);
+    }
+
+    function sendTestEmailAlert() {
+      const statusEl = document.getElementById('testEmailStatus');
+      const sel = document.getElementById('testEmailInspector');
+      const inspectorName = sel ? sel.value : '';
+      if (!inspectorName) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;">⚠️ Please select an inspector first.</span>';
+        return;
+      }
+      const inspectors = getInspectors();
+      const match = inspectors.find(ins => ins.name === inspectorName);
+      const toEmail = match ? match.email : '';
+      if (!toEmail) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;">⚠️ Inspector has no email address saved.</span>';
+        return;
+      }
+      const url = getGoogleSheetUrl();
+      if (!url) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;">⚠️ No webhook URL configured in Settings.</span>';
+        return;
+      }
+
+      // Open directly in browser tab — the only way to see the actual Apps Script response
+      const fullUrl = url + '?' + new URLSearchParams({ action: 'SEND_TEST_EMAIL', inspector: inspectorName, toEmail: toEmail }).toString();
+      window.open(fullUrl, '_blank');
+
+      if (statusEl) statusEl.innerHTML = `<span style="color:#57606a;">🔗 Opened in new tab — read the response shown there, then check <strong>${escapeHtml(toEmail)}</strong> inbox.</span>`;
+    }
+
+    function debugScheduleAlert() {
+      const statusEl = document.getElementById('testEmailStatus');
+      const sel = document.getElementById('testEmailInspector');
+      const inspectorName = sel ? sel.value : '';
+      if (!inspectorName) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;">⚠️ Please select an inspector first.</span>';
+        return;
+      }
+      const inspectors = getInspectors();
+      const match = inspectors.find(ins => ins.name === inspectorName);
+      const toEmail = match ? match.email : '';
+      if (!toEmail) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;">⚠️ Inspector has no email address saved.</span>';
+        return;
+      }
+      const url = getGoogleSheetUrl();
+      if (!url) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;">⚠️ No webhook URL configured.</span>';
+        return;
+      }
+
+      // Build the same params as the real alert but with delayMinutes=0 and a dummy room
+      const debugParams = new URLSearchParams({
+        action: 'SCHEDULE_EMAIL_ALERT',
+        recordId: 'DEBUG-' + Date.now(),
+        inspector: inspectorName,
+        toEmail: toEmail,
+        date: new Date().toLocaleDateString('en-US'),
+        delayMinutes: '0',
+        remarkedRooms: JSON.stringify([{ spaceName: 'Debug Room', remark: 'This is a test alert' }])
+      });
+
+      // Open in new tab so we can see the Apps Script response
+      window.open(url + '?' + debugParams.toString(), '_blank');
+
+      if (statusEl) statusEl.innerHTML = `<span style="color:#57606a;">🔬 Debug request opened — check new tab for Apps Script response. If it shows <code>alert_scheduled</code>, check <strong>${escapeHtml(toEmail)}</strong> inbox immediately.</span>`;
+    }
+
+    // ==========================================
+    // REMARKS NOTIFICATION (2-min post-submit)
+    // ==========================================
+    let _remarksNotifTimer = null;
+    let _remarksNotifData = null;
+
+    function scheduleRemarksNotification(record) {
+      // Only notify for today's records that have FAIL rooms with remarks
+      const remarkedRooms = (record.details || []).filter(d => d.status === 'FAIL');
+      if (!remarkedRooms.length) return;
+
+      const todayISO = toISODateOnly(new Date());
+      const recISO = toISODateOnly(record.submittedAt || record.date);
+      if (recISO !== todayISO) return;
+
+      // Cancel any previous pending notification
+      if (_remarksNotifTimer) clearTimeout(_remarksNotifTimer);
+
+      _remarksNotifData = { record: record, remarkedRooms: remarkedRooms };
+
+      _remarksNotifTimer = setTimeout(function() {
+        showRemarksNotif(_remarksNotifData);
+      }, 2 * 60 * 1000); // 2 minutes
+    }
+
+    function showRemarksNotif(data) {
+      const overlay = document.getElementById('remarksNotifOverlay');
+      const body = document.getElementById('remarksNotifBody');
+      if (!overlay || !body) return;
+
+      const rec = data.record;
+      const rooms = data.remarkedRooms;
+      const roomList = rooms.map(d => `• ${d.spaceName}${d.remark ? ': ' + d.remark : ''}`).join('\n');
+
+      body.innerHTML = `<strong>${escapeHtml(rec.inspector)}</strong> submitted an inspection on <strong>${escapeHtml(formatDateMMDDYYYY(rec.date))}</strong> with <strong>${rooms.length}</strong> room(s) marked as Remarked. Please check again:<br><br><pre style="background:#f7f8fa;border:1px solid #e5e7eb;border-radius:6px;padding:0.6rem 0.75rem;font-size:0.82rem;white-space:pre-wrap;margin:0;">${escapeHtml(roomList)}</pre>`;
+
+      overlay.style.display = 'flex';
+
+      // Auto-open email client immediately when modal fires
+      sendRemarksEmail(true);
+    }
+
+    function dismissRemarksNotif() {
+      const overlay = document.getElementById('remarksNotifOverlay');
+      if (overlay) overlay.style.display = 'none';
+      _remarksNotifData = null;
+    }
+
+    // autoFire=true skips the guard so it can be called from showRemarksNotif before _remarksNotifData is cleared
+    function sendRemarksEmail(autoFire) {
+      const data = _remarksNotifData;
+      if (!data) return;
+      const rec = data.record;
+      const rooms = data.remarkedRooms;
+
+      // Look up inspector email from saved list
+      const inspectors = getInspectors();
+      const match = inspectors.find(function(ins) {
+        return ins.name.toLowerCase() === (rec.inspector || '').toLowerCase();
+      });
+      const toEmail = (match && match.email) ? match.email : '';
+
+      if (!toEmail && !autoFire) {
+        alert('No email address found for this inspector. Please add one in Settings → Inspector List.');
+        return;
+      }
+
+      const subject = encodeURIComponent(`[Jabra Floorwalk] Remarked Rooms – ${formatDateMMDDYYYY(rec.date)} – ${rec.inspector}`);
+      const roomList = rooms.map(d => `  • ${d.spaceName}${d.remark ? ': ' + d.remark : ''}`).join('\n');
+      const bodyText = `Hi ${rec.inspector},\n\nThis is a reminder that your inspection submitted on ${formatDateMMDDYYYY(rec.date)} has ${rooms.length} room(s) marked as Remarked that may require a recheck:\n\n${roomList}\n\nPlease review and recheck the above room(s) at your earliest convenience.\n\nThank you,\nJabra Floorwalk Checklist`;
+      const mailBody = encodeURIComponent(bodyText);
+
+      // window.location.href works from timers; window.open is blocked by browsers without a user gesture
+      window.location.href = `mailto:${toEmail}?subject=${subject}&body=${mailBody}`;
+
+      if (!autoFire) dismissRemarksNotif();
+    }
+
+    function showToast(msg, duration) {
+      const toast = document.getElementById('toastMessage');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      if (toast._hideTimer) clearTimeout(toast._hideTimer);
+      toast._hideTimer = setTimeout(() => {
+        toast.style.display = 'none';
+      }, duration || 3000);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // ==========================================
+    // PWA SERVICE WORKER REGISTRATION
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('Service Worker registered, scope:', reg.scope))
+          .catch(err => console.warn('Service Worker registration failed:', err));
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
