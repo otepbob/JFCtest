@@ -390,10 +390,6 @@
       background-color: #fff1f2;
     }
 
-    .checklist-table tbody tr.row-warn {
-      background-color: #fffbeb;
-    }
-
     .floor-badge {
       display: inline-block;
       padding: 0.15rem 0.45rem;
@@ -463,16 +459,6 @@
       color: #fff;
     }
 
-    .btn-outline-primary {
-      background-color: #fff;
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-    .btn-outline-primary:hover, .btn-outline-primary.active {
-      background-color: var(--primary);
-      color: #fff;
-    }
-
     .btn-outline-danger {
       background-color: #fff;
       border-color: var(--danger);
@@ -530,12 +516,6 @@
       background-color: #f8d7da;
       border-color: #842029;
       color: #842029;
-    }
-
-    .status-btn.fail.active.sev-yellow {
-      background-color: #fef3c7;
-      border-color: #92400e;
-      color: #92400e;
     }
 
     .status-btn.clear {
@@ -645,7 +625,6 @@
     }
     .pill-success { background: #dcfce7; color: #166534; }
     .pill-warning { background: #fef3c7; color: #92400e; }
-    .pill-danger { background: #fee2e2; color: #991b1b; }
 
     /* Toast */
     .toast {
@@ -857,48 +836,6 @@
     .btn-settings-save:hover {
       background-color: #6d28d9;
     }
-
-    /* Room Management Styles */
-    .room-manage-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-    .room-manage-table th, .room-manage-table td {
-      padding: 0.45rem 0.6rem;
-      border: 1px solid var(--border);
-      text-align: left;
-    }
-    .room-manage-table th {
-      background-color: #f8fafc;
-      font-weight: 600;
-      color: var(--text-dark);
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-    .room-manage-table tbody tr:hover {
-      background-color: #f1f5f9;
-    }
-    .room-delete-btn {
-      background: #fff;
-      border: 1px solid #fee2e2;
-      color: #dc2626;
-      border-radius: 6px;
-      padding: 0.35rem 0.45rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-      line-height: 1;
-    }
-    .room-delete-btn:hover {
-      background: #dc2626;
-      color: #fff;
-      border-color: #dc2626;
-      transform: scale(1.05);
-    }
   </style>
 </head>
 <body>
@@ -919,7 +856,7 @@
         </svg>
       </div>
       <div class="brand-title">
-        <h1>Floorwalk Checklist <span class="brand-version" id="headerAppVersion">1.2.0</span></h1>
+        <h1>Floorwalk Checklist <span class="brand-version" id="headerAppVersion">1.1.1</span></h1>
         <p role="doc-subtitle">Jabra Speak Huddle &amp; Meeting Room Inspection Portal</p>
       </div>
     </div>
@@ -1031,13 +968,8 @@
               <button class="filter-btn active" onclick="filterFloor('ALL', this)">All Floors</button>
             </div>
             <!-- Bulk Actions -->
-            <div style="display:flex; gap:0.4rem; margin-left:auto; flex-wrap:wrap;">
-              <button class="btn btn-sm btn-outline-primary" onclick="openRoomManagementModal()" style="display:inline-flex; align-items:center; justify-content:center; padding:0.35rem 0.55rem;" title="Add or delete huddle rooms (Room Management)" aria-label="Add or delete huddle rooms">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-              </button>
-              <button class="btn btn-sm btn-outline-secondary" onclick="resetChecklistForm()" style="display:inline-flex; align-items:center; justify-content:center; padding:0.35rem 0.55rem;" title="Reset All (Clear Form)" aria-label="Reset checklist form">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
-              </button>
+            <div style="display:flex; gap:0.4rem; margin-left:auto;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="resetChecklistForm()">↺ Reset All</button>
             </div>
           </div>
         </div>
@@ -1051,7 +983,7 @@
                 <th style="width: 80px;">Floor</th>
                 <th style="width: 180px;">Huddle Room</th>
                 <th style="width: 210px;">Check Status</th>
-                <th>Remarks</th>
+                <th>Remarks / Issue Details</th>
                 <th style="width: 130px;">Timestamp</th>
               </tr>
             </thead>
@@ -1062,7 +994,7 @@
         </div>
         <div class="card-body" style="background:#f8fafc; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
           <div style="font-size:0.85rem; color:var(--text-muted);">
-            ⚡ Click <strong>✓ Good</strong> or <strong>✗ Remarks</strong> to record room status with timestamp. Submissions synchronize directly to your team's Google Sheet database.
+            ⚡ Click <strong>✓ Good</strong> or <strong>✗ Issue</strong> to record room status with timestamp. Submissions synchronize directly to your team's Google Sheet database.
           </div>
           <div style="display:flex; gap:0.5rem;">
             <button class="btn btn-primary" onclick="submitChecklist()">
@@ -1150,6 +1082,23 @@
                 <input type="url" id="gsheetDirectUrl" class="meta-input" placeholder="https://ibm.sharepoint.com/.../Jabra_Floorwalk_Logs.xlsx" onchange="saveDirectSheetUrl()">
               </div>
             </div>
+
+            <!-- GitHub Releases URL -->
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Check for App Update</strong>
+                <p>Paste the GitHub repository URL and tap <strong>Check for Update</strong> to see if a newer version is available.</p>
+              </div>
+              <div class="settings-control">
+                <div class="settings-input-row" style="gap:0.5rem; flex-wrap:wrap;">
+                  <input type="url" id="githubRepoUrl" class="meta-input" placeholder="https://github.com/owner/repo" style="flex:1; min-width:180px;">
+                  <button class="btn btn-settings-save" onclick="saveGithubRepoUrl()" style="white-space:nowrap;">💾 Save URL</button>
+                  <button class="btn btn-settings-save" id="checkUpdateBtn" onclick="checkForGitHubUpdate()" style="white-space:nowrap; background:#3b82d4; border-color:#3b82d4;">🔍 Check for Update</button>
+                </div>
+                <div id="githubRepoStatus" style="margin-top:0.4rem; font-size:0.78rem; color:#57606a;"></div>
+                <div id="githubUpdateResult" style="display:none; margin-top:0.65rem; padding:0.65rem 0.85rem; border-radius:6px; font-size:0.82rem; line-height:1.5;"></div>
+              </div>
+            </div>
           </div>
 
           <!-- SECTION: INSPECTOR LIST -->
@@ -1210,65 +1159,6 @@
                   <button class="btn btn-sm btn-outline-secondary" onclick="debugScheduleAlert()" style="white-space:nowrap;" title="Test the full SCHEDULE_EMAIL_ALERT path with 0-minute delay">🔬 Debug Alert</button>
                 </div>
                 <div id="testEmailStatus" style="margin-top:0.5rem; font-size:0.82rem; color:#57606a;"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION: HUDDLE ROOM MANAGEMENT -->
-          <div class="settings-section">
-            <div class="settings-section-title">
-              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-              Huddle &amp; Meeting Room Management
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label">
-                <strong>Select Site to Manage</strong>
-                <p>Choose which site's room inventory to view, add, or delete.</p>
-              </div>
-              <div class="settings-control">
-                <select id="settingsRoomSiteSelect" class="meta-input" style="font-weight:700; cursor:pointer;" onchange="onSettingsRoomSiteChange(this.value)">
-                  <option value="1800">1800 Building</option>
-                  <option value="UPA">UPA Site</option>
-                  <option value="NAGA">NAGA Site</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label">
-                <strong>Add Huddle Room</strong>
-                <p>Enter the building, floor, room name, and optional default remark, then click Add.</p>
-              </div>
-              <div class="settings-control">
-                <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                  <div class="settings-input-row" style="flex-wrap:wrap; gap:0.5rem;">
-                    <input type="text" id="settingsNewRoomBuilding" class="meta-input" placeholder="Building (e.g. 1800)" style="flex:1; min-width:110px;">
-                    <input type="text" id="settingsNewRoomFloor" class="meta-input" placeholder="Floor (e.g. 5, G, 2)" style="flex:1; min-width:90px;">
-                    <input type="text" id="settingsNewRoomName" class="meta-input" placeholder="Room Name (e.g. TURKESA)" style="flex:1.5; min-width:150px;">
-                    <button class="btn btn-settings-save" onclick="addRoomFromSettings()" style="white-space:nowrap;">+ Add Room</button>
-                  </div>
-                  <input type="text" id="settingsNewRoomRemark" class="meta-input" placeholder="Optional default remark / notes...">
-                </div>
-              </div>
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <strong>Room Inventory</strong>
-                  <span class="badge-count" id="settingsRoomCountBadge">0 rooms</span>
-                </div>
-                <p>Current active rooms for this site. Click 🗑️ to delete a room.</p>
-                <div style="margin-top:0.6rem;">
-                  <button class="btn btn-sm btn-outline-danger" onclick="resetCurrentSiteRoomsSettings()">↺ Reset Site to Defaults</button>
-                </div>
-              </div>
-              <div class="settings-control">
-                <div style="margin-bottom:0.5rem;">
-                  <input type="text" id="settingsRoomSearchInput" class="meta-input" placeholder="🔍 Search rooms in list..." oninput="renderSettingsRoomsList()" style="font-size:0.82rem;">
-                </div>
-                <div id="settingsRoomsListContainer" style="max-height:280px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; background:#fff;"></div>
               </div>
             </div>
           </div>
@@ -1499,7 +1389,7 @@
       if (alertSheet) {
         var aRows = alertSheet.getDataRange().getValues();
         for (var ar = aRows.length - 1; ar >= 1; ar--) {
-          if ((aRows[ar][0] === data.recordId || (data.site && String(aRows[ar][8]) === String(data.site))) && aRows[ar][6] === "PENDING") {
+          if (aRows[ar][0] === data.recordId && aRows[ar][6] === "NO") {
             alertSheet.getRange(ar + 1, 7).setValue("CANCELLED");
           }
         }
@@ -1560,65 +1450,16 @@ function doGet(e) {
           .setMimeType(ContentService.MimeType.JSON);
       }
 
-      // Register this alert as PENDING in Pending_Alerts. Any earlier PENDING alert for the same
-      // record OR the same site (a newer submission within the delay window) is marked SUPERSEDED,
-      // so only the latest alert is sent.
-      var alertId = Utilities.getUuid();
-      var site = params.site || "";
-      var lock = LockService.getScriptLock();
-      lock.waitLock(30000);
+      // Log to Pending_Alerts sheet for record-keeping
       var alertSheet = ss.getSheetByName("Pending_Alerts");
       if (!alertSheet) {
         alertSheet = ss.insertSheet("Pending_Alerts");
-        alertSheet.appendRow(["Record_ID", "Inspector", "To_Email", "Date", "Remarked_Rooms", "Sent_At", "Status", "Alert_ID", "Site"]);
-        alertSheet.getRange("A1:I1").setFontWeight("bold").setBackground("#e2e8f0");
+        alertSheet.appendRow(["Record_ID", "Inspector", "To_Email", "Date", "Remarked_Rooms", "Sent_At", "Status"]);
+        alertSheet.getRange("A1:G1").setFontWeight("bold").setBackground("#e2e8f0");
       }
-      var existingRows = alertSheet.getDataRange().getValues();
-      for (var er = 1; er < existingRows.length; er++) {
-        if (existingRows[er][6] === "PENDING" &&
-            (existingRows[er][0] === params.recordId || (site && String(existingRows[er][8]) === String(site)))) {
-          alertSheet.getRange(er + 1, 7).setValue("SUPERSEDED");
-        }
-      }
-      alertSheet.appendRow([params.recordId, inspector, toEmail, date, params.remarkedRooms || "[]", "", "PENDING", alertId, site]);
-      SpreadsheetApp.flush();
-      lock.releaseLock();
 
-      // Sleep for the delay duration, then check if THIS alert is still PENDING
+      // Sleep for the delay duration, then send email directly — no trigger required
       Utilities.sleep(delayMinutes * 60 * 1000);
-
-      // Verify 1: Our own row must still be PENDING (not CANCELLED / SUPERSEDED)
-      var ownRow = -1;
-      var aRows = alertSheet.getDataRange().getValues();
-      for (var ar = aRows.length - 1; ar >= 1; ar--) {
-        if (aRows[ar][7] === alertId) { ownRow = ar + 1; break; }
-      }
-      if (ownRow < 0 || aRows[ownRow - 1][6] !== "PENDING") {
-        return ContentService.createTextOutput(JSON.stringify({ status: "cancelled_or_superseded" }))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
-
-      // Verify 2: Check Floorwalk_Logs directly — if record was edited and now has 0 FAIL/Remarked rooms, abort email!
-      var logsSheet = ss.getSheetByName("Floorwalk_Logs");
-      if (logsSheet) {
-        var logRows = logsSheet.getDataRange().getValues();
-        var hasFailInLogs = false;
-        var recordFoundInLogs = false;
-        for (var lr = 1; lr < logRows.length; lr++) {
-          if (logRows[lr][0] === params.recordId) {
-            recordFoundInLogs = true;
-            if (logRows[lr][7] === "FAIL") {
-              hasFailInLogs = true;
-              break;
-            }
-          }
-        }
-        if (recordFoundInLogs && !hasFailInLogs) {
-          alertSheet.getRange(ownRow, 6, 1, 2).setValues([[new Date().toISOString(), "CANCELLED_EDITED_CLEAN"]]);
-          return ContentService.createTextOutput(JSON.stringify({ status: "cancelled_no_remarks_after_edit" }))
-            .setMimeType(ContentService.MimeType.JSON);
-        }
-      }
 
       var roomList = rooms.map(function(r) {
         return "  \u2022 " + r.spaceName + (r.remark ? ": " + r.remark : "");
@@ -1632,31 +1473,25 @@ function doGet(e) {
         + "Please review and recheck the above room(s) at your earliest convenience.\n\n"
         + "Thank you,\nJabra Floorwalk Checklist";
 
-      // Mark SENT before mailing (under lock) so no other request can send for the same alert
-      lock.waitLock(30000);
-      var latest = alertSheet.getRange(ownRow, 7).getValue();
-      if (latest !== "PENDING") {
-        lock.releaseLock();
-        return ContentService.createTextOutput(JSON.stringify({ status: "cancelled_or_superseded" }))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
-      alertSheet.getRange(ownRow, 6, 1, 2).setValues([[new Date().toISOString(), "SENT"]]);
-      SpreadsheetApp.flush();
-      lock.releaseLock();
-
       MailApp.sendEmail({ to: toEmail, subject: subject, body: body });
+
+      alertSheet.appendRow([
+        params.recordId, inspector, toEmail, date,
+        params.remarkedRooms || "[]",
+        new Date().toISOString(), "SENT"
+      ]);
 
       return ContentService.createTextOutput(JSON.stringify({ status: "email_sent", to: toEmail }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
-    // Handle CANCEL_EMAIL_ALERT — mark as cancelled in sheet so sleeping requests stop
+    // Handle CANCEL_EMAIL_ALERT — mark as cancelled in sheet (sleep requests already in flight can't be stopped)
     if (params.action === "CANCEL_EMAIL_ALERT" && params.recordId) {
       var alertSheet = ss.getSheetByName("Pending_Alerts");
       if (alertSheet) {
         var aRows = alertSheet.getDataRange().getValues();
         for (var ar = aRows.length - 1; ar >= 1; ar--) {
-          if ((aRows[ar][0] === params.recordId || (params.site && String(aRows[ar][8]) === String(params.site))) && aRows[ar][6] === "PENDING") {
+          if (aRows[ar][0] === params.recordId && aRows[ar][6] === "NO") {
             alertSheet.getRange(ar + 1, 7).setValue("CANCELLED");
           }
         }
@@ -1960,86 +1795,9 @@ function doGet(e) {
     </div>
   </div>
 
-  <!-- Room Management Modal -->
-  <div id="roomManagementModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target === this) closeRoomManagementModal()">
-    <div style="background:#fff; border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,0.22); max-width:720px; width:100%; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;" onclick="event.stopPropagation()">
-      <!-- Modal Header -->
-      <div style="padding:1rem 1.25rem; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f8fafc;">
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span style="font-size:1.3rem;">🏢</span>
-          <div>
-            <div style="font-size:1.05rem; font-weight:700; color:#1f2328;">Huddle &amp; Meeting Room Management</div>
-            <div style="font-size:0.78rem; color:#57606a;">Add, remove, or customize rooms for your floorwalk checklist</div>
-          </div>
-        </div>
-        <button onclick="closeRoomManagementModal()" style="background:none; border:none; font-size:1.4rem; color:#57606a; cursor:pointer; padding:0 0.4rem; line-height:1;" title="Close">&times;</button>
-      </div>
-
-      <!-- Modal Body -->
-      <div style="padding:1.25rem; overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem;">
-        
-        <!-- Site Selection Bar -->
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; background:#f1f5f9; padding:0.6rem 0.85rem; border-radius:8px;">
-          <div style="display:flex; align-items:center; gap:0.5rem;">
-            <label style="font-size:0.85rem; font-weight:700; color:#334155;">Active Site:</label>
-            <select id="modalRoomSiteSelect" class="meta-input" style="font-weight:700; padding:0.3rem 0.6rem; cursor:pointer;" onchange="onModalRoomSiteChange(this.value)">
-              <option value="1800">1800 Building</option>
-              <option value="UPA">UPA Site</option>
-              <option value="NAGA">NAGA Site</option>
-            </select>
-          </div>
-          <span class="badge-count" id="modalRoomCountBadge">0 rooms</span>
-        </div>
-
-        <!-- Add Room Form Card -->
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1rem;">
-          <div style="font-size:0.9rem; font-weight:700; color:#1e293b; margin-bottom:0.65rem; display:flex; align-items:center; gap:0.35rem;">
-            <span>➕</span> Add New Huddle Room
-          </div>
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:0.5rem; margin-bottom:0.5rem;">
-            <div>
-              <label style="font-size:0.75rem; font-weight:600; color:#64748b; display:block; margin-bottom:2px;">Building *</label>
-              <input type="text" id="modalNewRoomBuilding" class="meta-input" placeholder="e.g. 1800, UPAE" style="width:100%;">
-            </div>
-            <div>
-              <label style="font-size:0.75rem; font-weight:600; color:#64748b; display:block; margin-bottom:2px;">Floor *</label>
-              <input type="text" id="modalNewRoomFloor" class="meta-input" placeholder="e.g. 5, 7, G, 2" style="width:100%;">
-            </div>
-            <div style="grid-column: span 2;">
-              <label style="font-size:0.75rem; font-weight:600; color:#64748b; display:block; margin-bottom:2px;">Huddle Room Name *</label>
-              <input type="text" id="modalNewRoomName" class="meta-input" placeholder="e.g. TURKESA, BOARDROOM 1" style="width:100%;">
-            </div>
-          </div>
-          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-            <input type="text" id="modalNewRoomRemark" class="meta-input" placeholder="Optional default remark / notes..." style="flex:1; min-width:180px;">
-            <button class="btn btn-primary" onclick="addRoomFromModal()" style="white-space:nowrap; padding:0.45rem 1rem;">
-              + Add Room
-            </button>
-          </div>
-        </div>
-
-        <!-- Room Inventory List -->
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
-            <div style="font-size:0.9rem; font-weight:700; color:#1e293b;">Existing Rooms in Inventory</div>
-            <input type="text" id="modalRoomSearchInput" class="meta-input" placeholder="🔍 Search rooms..." oninput="renderModalRoomsList()" style="max-width:180px; font-size:0.8rem; padding:0.25rem 0.5rem;">
-          </div>
-          <div id="modalRoomsListContainer" style="max-height:260px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; background:#fff;"></div>
-        </div>
-
-      </div>
-
-      <!-- Modal Footer -->
-      <div style="padding:0.75rem 1.25rem; border-top:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; background:#f8fafc; flex-wrap:wrap; gap:0.5rem;">
-        <button class="btn btn-sm btn-outline-danger" onclick="resetCurrentSiteRoomsModal()">↺ Reset Site to Defaults</button>
-        <button class="btn btn-primary" onclick="closeRoomManagementModal()">Done</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // Room inventory per site (Source: Jabra Floorwalk & Sites.xlsx)
-    const DEFAULT_SITE_ROOMS = {
+    const SITE_ROOMS = {
       "1800": [
         // Floor 5
         { id: 1, building: "1800", floor: "5", spaceName: "TURKESA", defaultRemark: "" },
@@ -2101,85 +1859,8 @@ function doGet(e) {
       ]
     };
 
-    const ROOMS_STORAGE_KEY = 'jabra_site_rooms';
-
-    function getFloorSortValue(floorStr) {
-      if (floorStr === null || floorStr === undefined) return 9999;
-      const s = String(floorStr).trim().toUpperCase();
-      if (!s) return 9999;
-      
-      if (s === 'B3') return -3;
-      if (s === 'B2') return -2;
-      if (s === 'B1' || s === 'B' || s === 'BASEMENT') return -1;
-      if (s === 'LG' || s === 'LOWER GROUND') return -0.5;
-      if (s === 'G' || s === 'GF' || s === 'GROUND' || s === '0') return 0;
-      if (s === 'UG' || s === 'UPPER GROUND') return 0.5;
-      if (s === 'M' || s === 'MZ' || s === 'MEZZANINE') return 1.5;
-
-      const num = parseFloat(s.replace(/[^0-9.-]/g, ''));
-      if (!isNaN(num)) return num;
-
-      return 9999;
-    }
-
-    function sortRoomsByBldgAndFloor(roomsList) {
-      if (!Array.isArray(roomsList)) return roomsList;
-
-      return roomsList.sort((a, b) => {
-        const bldgA = String(a.building || '').trim();
-        const bldgB = String(b.building || '').trim();
-        const bldgComp = bldgA.localeCompare(bldgB, undefined, { numeric: true, sensitivity: 'base' });
-        if (bldgComp !== 0) return bldgComp;
-
-        const floorValA = getFloorSortValue(a.floor);
-        const floorValB = getFloorSortValue(b.floor);
-        if (floorValA !== floorValB) return floorValA - floorValB;
-
-        const floorStrA = String(a.floor || '').trim();
-        const floorStrB = String(b.floor || '').trim();
-        const floorStrComp = floorStrA.localeCompare(floorStrB, undefined, { numeric: true, sensitivity: 'base' });
-        if (floorStrComp !== 0) return floorStrComp;
-
-        const nameA = String(a.spaceName || '').trim();
-        const nameB = String(b.spaceName || '').trim();
-        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
-      });
-    }
-
-    function getStoredSiteRooms() {
-      try {
-        const raw = localStorage.getItem(ROOMS_STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === 'object') {
-            const result = {};
-            for (const key of Object.keys(DEFAULT_SITE_ROOMS)) {
-              result[key] = Array.isArray(parsed[key]) ? sortRoomsByBldgAndFloor(parsed[key]) : sortRoomsByBldgAndFloor(JSON.parse(JSON.stringify(DEFAULT_SITE_ROOMS[key])));
-            }
-            return result;
-          }
-        }
-      } catch (e) {
-        console.warn('Could not parse stored site rooms', e);
-      }
-      const initial = JSON.parse(JSON.stringify(DEFAULT_SITE_ROOMS));
-      for (const k of Object.keys(initial)) {
-        sortRoomsByBldgAndFloor(initial[k]);
-      }
-      return initial;
-    }
-
-    let SITE_ROOMS = getStoredSiteRooms();
     let currentSite = "1800";
-    let ROOMS_DATA = SITE_ROOMS["1800"] || [];
-
-    function saveStoredSiteRooms() {
-      try {
-        localStorage.setItem(ROOMS_STORAGE_KEY, JSON.stringify(SITE_ROOMS));
-      } catch (e) {
-        console.warn('Could not save site rooms to storage', e);
-      }
-    }
+    let ROOMS_DATA = SITE_ROOMS["1800"];
 
     const PRESET_REMARKS = [
       "-- Select preset remark (optional) --",
@@ -2364,350 +2045,12 @@ function doGet(e) {
       if (removed) showToast('Inspector "' + removed.name + '" removed.');
     }
 
-    // ==========================================
-    // HUDDLE ROOM MANAGEMENT (ADD / DELETE)
-    // ==========================================
-    function getSiteDisplayName(siteKey) {
-      if (siteKey === '1800') return '1800 Building';
-      if (siteKey === 'UPA') return 'UPA Site';
-      if (siteKey === 'NAGA') return 'NAGA Site';
-      return siteKey || 'Selected Site';
-    }
-
-    function addNewRoom(siteKey, roomObj) {
-      if (!siteKey || !SITE_ROOMS[siteKey]) return false;
-
-      const building = (roomObj.building || '').trim();
-      const floor = (roomObj.floor || '').trim();
-      const spaceName = (roomObj.spaceName || '').trim();
-      const defaultRemark = (roomObj.defaultRemark || '').trim();
-
-      if (!building) {
-        alert('Please enter a Building name (e.g. 1800, UPAE, NAGAB).');
-        return false;
-      }
-      if (!floor) {
-        alert('Please enter a Floor (e.g. 5, 7, 8, G, 2).');
-        return false;
-      }
-      if (!spaceName) {
-        alert('Please enter a Huddle Room / Space Name.');
-        return false;
-      }
-
-      // Check if duplicate room already exists in this site
-      const exists = SITE_ROOMS[siteKey].some(r =>
-        r.spaceName.toLowerCase() === spaceName.toLowerCase() &&
-        String(r.floor).toLowerCase() === floor.toLowerCase() &&
-        String(r.building).toLowerCase() === building.toLowerCase()
-      );
-      if (exists) {
-        alert(`A room named "${spaceName}" on Floor ${floor} (${building}) already exists in this site.`);
-        return false;
-      }
-
-      const newId = 'room_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-      const newRoom = {
-        id: newId,
-        building: building,
-        floor: floor,
-        spaceName: spaceName,
-        defaultRemark: defaultRemark
-      };
-
-      SITE_ROOMS[siteKey].push(newRoom);
-      sortRoomsByBldgAndFloor(SITE_ROOMS[siteKey]);
-      saveStoredSiteRooms();
-
-      if (currentSite === siteKey) {
-        ROOMS_DATA = SITE_ROOMS[siteKey];
-        checklistState[newId] = {
-          status: null,
-          timestamp: '',
-          presetRemark: defaultRemark,
-          customRemark: defaultRemark
-        };
-        updateSiteView(currentSite);
-        renderTable();
-        updateProgress();
-        saveDraft();
-      }
-
-      renderRoomManagementUI();
-      showToast(`Huddle room "${spaceName}" added to ${getSiteDisplayName(siteKey)}!`);
-      return true;
-    }
-
-    function deleteHuddleRoom(siteKey, roomId) {
-      if (!siteKey || !SITE_ROOMS[siteKey]) return;
-      const room = SITE_ROOMS[siteKey].find(r => String(r.id) === String(roomId));
-      if (!room) return;
-
-      const confirmMsg = `Are you sure you want to delete the huddle room "${room.spaceName}" (Floor ${room.floor}, Building ${room.building}) from ${getSiteDisplayName(siteKey)}?`;
-      if (!confirm(confirmMsg)) return;
-
-      SITE_ROOMS[siteKey] = SITE_ROOMS[siteKey].filter(r => String(r.id) !== String(roomId));
-      saveStoredSiteRooms();
-
-      if (checklistState[roomId]) {
-        delete checklistState[roomId];
-      }
-
-      if (currentSite === siteKey) {
-        ROOMS_DATA = SITE_ROOMS[siteKey];
-        updateSiteView(currentSite);
-        renderTable();
-        updateProgress();
-        saveDraft();
-      }
-
-      renderRoomManagementUI();
-      showToast(`Room "${room.spaceName}" deleted.`);
-    }
-
-    function resetSiteRoomsToDefault(siteKey) {
-      const siteName = getSiteDisplayName(siteKey);
-      if (!confirm(`Reset all rooms for ${siteName} back to the default original list?\n\nThis will restore factory room inventory.`)) {
-        return;
-      }
-
-      if (DEFAULT_SITE_ROOMS[siteKey]) {
-        SITE_ROOMS[siteKey] = sortRoomsByBldgAndFloor(JSON.parse(JSON.stringify(DEFAULT_SITE_ROOMS[siteKey])));
-        saveStoredSiteRooms();
-
-        if (currentSite === siteKey) {
-          ROOMS_DATA = SITE_ROOMS[siteKey];
-          checklistState = {};
-          ROOMS_DATA.forEach(r => {
-            checklistState[r.id] = { status: null, timestamp: '', presetRemark: '', customRemark: '' };
-          });
-          updateSiteView(currentSite);
-          renderTable();
-          updateProgress();
-          saveDraft();
-        }
-
-        renderRoomManagementUI();
-        showToast(`Rooms for ${siteName} reset to default.`);
-      }
-    }
-
-    function openRoomManagementModal(siteKey) {
-      const modal = document.getElementById('roomManagementModal');
-      if (!modal) return;
-      const targetSite = siteKey || currentSite || '1800';
-      const sel = document.getElementById('modalRoomSiteSelect');
-      if (sel) sel.value = targetSite;
-      onModalRoomSiteChange(targetSite);
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeRoomManagementModal() {
-      const modal = document.getElementById('roomManagementModal');
-      if (!modal) return;
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-    }
-
-    function updateRoomFormDefaults(prefix, siteKey) {
-      const bldgInput = document.getElementById(`${prefix}NewRoomBuilding`);
-      if (bldgInput && !bldgInput.value) {
-        if (siteKey === '1800') bldgInput.placeholder = '1800';
-        else if (siteKey === 'UPA') bldgInput.placeholder = 'e.g. UPAE, UPAJ, UPAM';
-        else if (siteKey === 'NAGA') bldgInput.placeholder = 'NAGAB';
-      }
-    }
-
-    function onModalRoomSiteChange(siteKey) {
-      updateRoomFormDefaults('modal', siteKey);
-      renderModalRoomsList();
-    }
-
-    function onSettingsRoomSiteChange(siteKey) {
-      updateRoomFormDefaults('settings', siteKey);
-      renderSettingsRoomsList();
-    }
-
-    function addRoomFromModal() {
-      const siteSelect = document.getElementById('modalRoomSiteSelect');
-      const bldgInput = document.getElementById('modalNewRoomBuilding');
-      const floorInput = document.getElementById('modalNewRoomFloor');
-      const nameInput = document.getElementById('modalNewRoomName');
-      const remarkInput = document.getElementById('modalNewRoomRemark');
-
-      const siteKey = siteSelect ? siteSelect.value : currentSite;
-      const building = bldgInput ? (bldgInput.value.trim() || (siteKey === '1800' ? '1800' : siteKey === 'NAGA' ? 'NAGAB' : '')) : '';
-      const floor = floorInput ? floorInput.value.trim() : '';
-      const spaceName = nameInput ? nameInput.value.trim() : '';
-      const defaultRemark = remarkInput ? remarkInput.value.trim() : '';
-
-      if (!building) {
-        alert('Please enter the Building name (e.g. 1800, UPAE, NAGAB).');
-        if (bldgInput) bldgInput.focus();
-        return;
-      }
-      if (!floor) {
-        alert('Please enter the Floor (e.g. 5, 7, 8, G, 2, 4).');
-        if (floorInput) floorInput.focus();
-        return;
-      }
-      if (!spaceName) {
-        alert('Please enter the Huddle Room / Space Name.');
-        if (nameInput) nameInput.focus();
-        return;
-      }
-
-      const success = addNewRoom(siteKey, { building, floor, spaceName, defaultRemark });
-      if (success) {
-        if (nameInput) nameInput.value = '';
-        if (remarkInput) remarkInput.value = '';
-        if (nameInput) nameInput.focus();
-      }
-    }
-
-    function addRoomFromSettings() {
-      const siteSelect = document.getElementById('settingsRoomSiteSelect');
-      const bldgInput = document.getElementById('settingsNewRoomBuilding');
-      const floorInput = document.getElementById('settingsNewRoomFloor');
-      const nameInput = document.getElementById('settingsNewRoomName');
-      const remarkInput = document.getElementById('settingsNewRoomRemark');
-
-      const siteKey = siteSelect ? siteSelect.value : currentSite;
-      const building = bldgInput ? (bldgInput.value.trim() || (siteKey === '1800' ? '1800' : siteKey === 'NAGA' ? 'NAGAB' : '')) : '';
-      const floor = floorInput ? floorInput.value.trim() : '';
-      const spaceName = nameInput ? nameInput.value.trim() : '';
-      const defaultRemark = remarkInput ? remarkInput.value.trim() : '';
-
-      if (!building) {
-        alert('Please enter the Building name (e.g. 1800, UPAE, NAGAB).');
-        if (bldgInput) bldgInput.focus();
-        return;
-      }
-      if (!floor) {
-        alert('Please enter the Floor (e.g. 5, 7, 8, G, 2, 4).');
-        if (floorInput) floorInput.focus();
-        return;
-      }
-      if (!spaceName) {
-        alert('Please enter the Huddle Room / Space Name.');
-        if (nameInput) nameInput.focus();
-        return;
-      }
-
-      const success = addNewRoom(siteKey, { building, floor, spaceName, defaultRemark });
-      if (success) {
-        if (nameInput) nameInput.value = '';
-        if (remarkInput) remarkInput.value = '';
-        if (nameInput) nameInput.focus();
-      }
-    }
-
-    function resetCurrentSiteRoomsModal() {
-      const sel = document.getElementById('modalRoomSiteSelect');
-      const siteKey = sel ? sel.value : currentSite;
-      resetSiteRoomsToDefault(siteKey);
-    }
-
-    function resetCurrentSiteRoomsSettings() {
-      const sel = document.getElementById('settingsRoomSiteSelect');
-      const siteKey = sel ? sel.value : currentSite;
-      resetSiteRoomsToDefault(siteKey);
-    }
-
-    function renderRoomManagementUI() {
-      renderModalRoomsList();
-      renderSettingsRoomsList();
-    }
-
-    function renderModalRoomsList() {
-      const siteSelect = document.getElementById('modalRoomSiteSelect');
-      const siteKey = siteSelect ? siteSelect.value : currentSite;
-      const searchInput = document.getElementById('modalRoomSearchInput');
-      const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
-      const container = document.getElementById('modalRoomsListContainer');
-      const badge = document.getElementById('modalRoomCountBadge');
-
-      const rooms = SITE_ROOMS[siteKey] || [];
-      if (badge) badge.innerText = `${rooms.length} room${rooms.length === 1 ? '' : 's'}`;
-      if (container) {
-        container.innerHTML = generateRoomsTableHtml(siteKey, rooms, query);
-      }
-    }
-
-    function renderSettingsRoomsList() {
-      const siteSelect = document.getElementById('settingsRoomSiteSelect');
-      const siteKey = siteSelect ? siteSelect.value : currentSite;
-      const searchInput = document.getElementById('settingsRoomSearchInput');
-      const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
-      const container = document.getElementById('settingsRoomsListContainer');
-      const badge = document.getElementById('settingsRoomCountBadge');
-
-      const rooms = SITE_ROOMS[siteKey] || [];
-      if (badge) badge.innerText = `${rooms.length} room${rooms.length === 1 ? '' : 's'}`;
-      if (container) {
-        container.innerHTML = generateRoomsTableHtml(siteKey, rooms, query);
-      }
-    }
-
-    function generateRoomsTableHtml(siteKey, rooms, query) {
-      let filtered = rooms;
-      if (query) {
-        filtered = rooms.filter(r =>
-          (r.spaceName && r.spaceName.toLowerCase().includes(query)) ||
-          (r.building && r.building.toLowerCase().includes(query)) ||
-          (r.floor && String(r.floor).toLowerCase().includes(query)) ||
-          (r.defaultRemark && r.defaultRemark.toLowerCase().includes(query))
-        );
-      }
-
-      if (!filtered.length) {
-        return `<div style="padding:1.25rem; text-align:center; color:#64748b; font-size:0.85rem;">${query ? 'No matching rooms found.' : 'No rooms configured for this site.'}</div>`;
-      }
-
-      let html = `<table class="room-manage-table">
-        <thead>
-          <tr>
-            <th style="width:36px; text-align:center;">#</th>
-            <th style="width:75px;">Building</th>
-            <th style="width:65px;">Floor</th>
-            <th>Huddle Room Name</th>
-            <th style="width:50px; text-align:center;">Action</th>
-          </tr>
-        </thead>
-        <tbody>`;
-
-      filtered.forEach((r, idx) => {
-        html += `<tr>
-          <td style="color:#64748b; text-align:center; font-weight:600;">${idx + 1}</td>
-          <td><span style="font-weight:600; color:#1e293b;">${escapeHtml(r.building)}</span></td>
-          <td><span class="floor-badge" style="font-size:0.75rem;">${escapeHtml(r.floor === 'G' ? 'Ground' : 'Floor ' + r.floor)}</span></td>
-          <td>
-            <div style="font-weight:700; color:#0f172a;">${escapeHtml(r.spaceName)}</div>
-            ${r.defaultRemark ? `<div style="font-size:0.75rem; color:#64748b;">${escapeHtml(r.defaultRemark)}</div>` : ''}
-          </td>
-          <td style="text-align:center;">
-            <button class="room-delete-btn" onclick="deleteHuddleRoom('${escapeHtml(siteKey)}', '${escapeHtml(r.id)}')" title="Delete ${escapeHtml(r.spaceName)}" aria-label="Delete ${escapeHtml(r.spaceName)}">
-              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-            </button>
-          </td>
-        </tr>`;
-      });
-
-      html += `</tbody></table>`;
-      return html;
-    }
-
     function init() {
-      SITE_ROOMS = getStoredSiteRooms();
-      if (!SITE_ROOMS[currentSite]) currentSite = "1800";
-      ROOMS_DATA = SITE_ROOMS[currentSite] || [];
-
       loadGoogleSheetConfig();
+      loadGithubRepoUrl();
       loadAppVersionAndNotes();
       populateInspectorDropdown();
       renderInspectorSettings();
-      renderRoomManagementUI();
       loadAlertDelaySetting();
 
       const hadDraft = loadDraft();
@@ -2876,6 +2219,132 @@ function doGet(e) {
       syncSettingsToSheet();
     }
 
+    // ── GitHub Update Check ──────────────────────────────────────────────
+    function saveGithubRepoUrl() {
+      const input = document.getElementById('githubRepoUrl');
+      const statusEl = document.getElementById('githubRepoStatus');
+      const val = input ? input.value.trim() : '';
+      if (val) {
+        localStorage.setItem('jabra_github_repo_url', val);
+        if (statusEl) statusEl.innerText = '✓ Saved';
+        showToast('GitHub repository URL saved.');
+      } else {
+        localStorage.removeItem('jabra_github_repo_url');
+        if (statusEl) statusEl.innerText = '';
+        showToast('GitHub repository URL cleared.');
+      }
+    }
+
+    function loadGithubRepoUrl() {
+      const input = document.getElementById('githubRepoUrl');
+      if (input) input.value = localStorage.getItem('jabra_github_repo_url') || '';
+    }
+
+    async function checkForGitHubUpdate() {
+      const resultEl = document.getElementById('githubUpdateResult');
+      const btn = document.getElementById('checkUpdateBtn');
+      const repoUrl = (localStorage.getItem('jabra_github_repo_url') || '').trim();
+
+      if (!repoUrl) {
+        resultEl.style.display = 'block';
+        resultEl.style.background = '#fff8e1';
+        resultEl.style.border = '1px solid #ffc107';
+        resultEl.style.color = '#7c5700';
+        resultEl.innerHTML = '⚠️ No GitHub repository URL configured. Go to <strong>Settings → Database → GitHub Releases URL</strong> and paste your repository URL.';
+        return;
+      }
+
+      // Derive API URL from plain repo URL (e.g. https://github.com/owner/repo)
+      let apiUrl;
+      try {
+        const match = repoUrl.match(/github\.com\/([^/]+\/[^/]+)/i);
+        if (!match) throw new Error('invalid');
+        const ownerRepo = match[1].replace(/\.git$/, '');
+        apiUrl = 'https://api.github.com/repos/' + ownerRepo + '/releases/latest';
+      } catch {
+        resultEl.style.display = 'block';
+        resultEl.style.background = '#fff1f2';
+        resultEl.style.border = '1px solid #f87171';
+        resultEl.style.color = '#991b1b';
+        resultEl.innerHTML = '❌ The saved URL doesn\'t look like a valid GitHub repository link. Expected format: <code>https://github.com/owner/repo</code>';
+        return;
+      }
+
+      // Loading state
+      if (btn) { btn.disabled = true; btn.textContent = '🔄 Checking…'; }
+      resultEl.style.display = 'none';
+
+      try {
+        const resp = await fetch(apiUrl, {
+          headers: { Accept: 'application/vnd.github+json' },
+          signal: AbortSignal.timeout(10000)
+        });
+
+        if (!resp.ok) {
+          if (resp.status === 404) {
+            throw new Error('Repository or releases not found. Make sure the repository is public and has at least one published release.');
+          }
+          if (resp.status === 403) {
+            throw new Error('GitHub API rate limit reached. Please try again in a few minutes.');
+          }
+          throw new Error('GitHub API returned status ' + resp.status);
+        }
+
+        const data = await resp.json();
+        const latestTag = (data.tag_name || '').replace(/^v/i, '');
+        const releaseUrl = data.html_url || repoUrl + '/releases/latest';
+        const releaseName = data.name || data.tag_name || 'Latest Release';
+        const publishedAt = data.published_at ? new Date(data.published_at).toLocaleDateString() : '';
+
+        const headerVer = document.getElementById('headerAppVersion');
+        const currentVersion = (headerVer ? headerVer.innerText.trim() : '').replace(/^v/i, '');
+
+        function parseVer(v) {
+          return v.split(/[.\-]/).map(x => parseInt(x) || 0);
+        }
+        function isNewer(latest, current) {
+          const a = parseVer(latest), b = parseVer(current);
+          for (let i = 0; i < Math.max(a.length, b.length); i++) {
+            if ((a[i] || 0) > (b[i] || 0)) return true;
+            if ((a[i] || 0) < (b[i] || 0)) return false;
+          }
+          return false;
+        }
+
+        resultEl.style.display = 'block';
+        if (isNewer(latestTag, currentVersion)) {
+          resultEl.style.background = '#eff6ff';
+          resultEl.style.border = '1px solid #93c5fd';
+          resultEl.style.color = '#1e40af';
+          resultEl.innerHTML =
+            '🆕 <strong>New version available: v' + escapeHtml(latestTag) + '</strong>' +
+            (publishedAt ? ' · Published ' + escapeHtml(publishedAt) : '') +
+            '<br><span style="font-size:0.8rem; color:#374151;">' + escapeHtml(releaseName) + '</span>' +
+            '<br><a href="' + escapeHtml(releaseUrl) + '" target="_blank" style="font-size:0.8rem; color:#2563eb; font-weight:600;">View release on GitHub →</a>' +
+            '<br><small style="color:#57606a;">Your current version: v' + escapeHtml(currentVersion) + '</small>';
+        } else {
+          resultEl.style.background = '#f0fdf4';
+          resultEl.style.border = '1px solid #86efac';
+          resultEl.style.color = '#166534';
+          resultEl.innerHTML =
+            '✅ <strong>You are up to date.</strong>' +
+            ' Current version: v' + escapeHtml(currentVersion) +
+            ' · Latest release: v' + escapeHtml(latestTag || currentVersion) +
+            (publishedAt ? ' · Published ' + escapeHtml(publishedAt) : '') +
+            '<br><a href="' + escapeHtml(releaseUrl) + '" target="_blank" style="font-size:0.8rem; color:#166534;">View on GitHub →</a>';
+        }
+      } catch (err) {
+        resultEl.style.display = 'block';
+        resultEl.style.background = '#fff1f2';
+        resultEl.style.border = '1px solid #f87171';
+        resultEl.style.color = '#991b1b';
+        resultEl.innerHTML = '❌ Could not check for updates. ' + escapeHtml(err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '🔍 Check for Update'; }
+      }
+    }
+    // ── End GitHub Update Check ──────────────────────────────────────────
+
     async function syncSettingsToSheet() {
       const url = getGoogleSheetUrl();
       if (!url) return;
@@ -2912,15 +2381,7 @@ function doGet(e) {
     }
 
     // Embedded changelog — update this alongside the version number in the HTML header
-    const EMBEDDED_RELEASE_NOTES = `v1.2.0 — What's New
-
-[Huddle Room Management]
-- Add and Delete Huddle Rooms: Full support for customizing room inventories across 1800, UPA, and NAGA sites
-- Direct Access in Checklist: Click the Add / Manage Rooms (+) icon on the inspection table toolbar to open the room manager instantly
-- Settings Section: Dedicated "Huddle & Meeting Room Management" section in Settings tab
-- Live Filter & Progress Sync: Filter buttons, floor badges, pending counts, and progress trackers dynamically adapt to room changes
-- Reset Option: Restore factory default room inventory per site anytime with one click
-- Persistent Storage: Added rooms and deletions persist safely in local storage
+    const EMBEDDED_RELEASE_NOTES = `v1.1.0 — What's New
 
 [Inspector & Alerts]
 - Inspector Name is now a dropdown — select from a saved inspector list
@@ -2930,19 +2391,27 @@ function doGet(e) {
   · Server-side delivery via Apps Script — works even when the app/tab is closed
   · Configurable delay (1–540 mins), default 2 minutes
 - In-browser Remarks Notification modal as fallback when tab stays open
+- Settings: Alert Delay setting saved to Google Sheet across devices
 
-[Email Tools & Settings]
+[Email Tools]
 - Settings: Test Email Alert button — verify webhook and email delivery instantly
 - Settings: Debug Alert button — test the full end-to-end alert path
 - Settings: appsscript.json manifest snippet with all required OAuth scopes
 
+[UI & Labels]
+- Status label updated: "✗ Issue" → "✗ Remarks" across Checklist, Data, and Report
+- Report summary badge updated: "Issues" → "Remarked"
+- App icon updated: Royal blue headphone icon with JABRA FLOORWALK text
+- Header logo replaced with the new icon
+
 [System]
-- Version auto-increments to 1.2.0 and silently syncs to cloud
-- Performance and responsiveness enhancements`;
+- Version auto-increments on every update and silently syncs to cloud
+- App Settings (alert delay) saved to Google Sheet App_Settings tab
+- Bug fixes and performance improvements`;
 
     // Bump this key whenever EMBEDDED_RELEASE_NOTES changes — forces notes to refresh
     const NOTES_VERSION_KEY = 'jabra_notes_version';
-    const EMBEDDED_NOTES_VERSION = '1.2.0-r1'; // change alongside EMBEDDED_RELEASE_NOTES
+    const EMBEDDED_NOTES_VERSION = '1.1.1-r2'; // change alongside EMBEDDED_RELEASE_NOTES
 
     function loadAppVersionAndNotes() {
       const headerVer = document.getElementById('headerAppVersion');
@@ -3208,7 +2677,8 @@ function doGet(e) {
             tr.style.display = 'none';
           }
         }
-        tr.className = getRowClass(state.status, state.customRemark);
+        if (state.status === 'PASS') tr.className = 'row-passed';
+        else if (state.status === 'FAIL') tr.className = 'row-issue';
 
         let selectOptionsHtml = '';
         PRESET_REMARKS.forEach(opt => {
@@ -3216,7 +2686,6 @@ function doGet(e) {
           selectOptionsHtml += `<option value="${opt === PRESET_REMARKS[0] ? '' : escapeHtml(opt)}" ${isSelected ? 'selected' : ''}>${escapeHtml(opt)}</option>`;
         });
 
-        const safeRoomId = escapeHtml(String(room.id));
         tr.innerHTML = `
           <td style="color:var(--text-muted); font-weight:600;">${index + 1}</td>
           <td><span style="font-weight:600;">${escapeHtml(room.building)}</span></td>
@@ -3224,23 +2693,23 @@ function doGet(e) {
           <td><span class="space-title">${escapeHtml(room.spaceName)}</span></td>
           <td>
             <div class="status-group">
-              <button type="button" class="status-btn pass ${state.status === 'PASS' ? 'active' : ''}" onclick="setRowStatus('${safeRoomId}', 'PASS')" title="Device Good">
-                Good
+              <button type="button" class="status-btn pass ${state.status === 'PASS' ? 'active' : ''}" onclick="setRowStatus(${room.id}, 'PASS')" title="Device Good">
+                ✓ Good
               </button>
-              <button type="button" id="fail-btn-${safeRoomId}" class="status-btn fail ${state.status === 'FAIL' ? 'active' : ''} ${getSeverity(state.status, state.customRemark) === 'yellow' ? 'sev-yellow' : ''}" onclick="setRowStatus('${safeRoomId}', 'FAIL')" title="Occupied / Remarks (add * in remarks or choose 'no vision' for red)">
-                Check
+              <button type="button" class="status-btn fail ${state.status === 'FAIL' ? 'active' : ''}" onclick="setRowStatus(${room.id}, 'FAIL')" title="Issue Found">
+                ✗ Remarks
               </button>
-              ${state.status ? `<button type="button" class="status-btn clear" onclick="clearRowStatus('${safeRoomId}')" title="Clear">✕</button>` : ''}
+              ${state.status ? `<button type="button" class="status-btn clear" onclick="clearRowStatus(${room.id})" title="Clear">✕</button>` : ''}
             </div>
           </td>
           <td>
-            <select class="preset-dropdown" onchange="onPresetChange('${safeRoomId}', this.value)">
+            <select class="preset-dropdown" onchange="onPresetChange(${room.id}, this.value)">
               ${selectOptionsHtml}
             </select>
-            <input type="text" class="table-input" id="remark-input-${safeRoomId}" placeholder="Add remarks / notes..." value="${escapeHtml(state.customRemark)}" oninput="onRemarkChange('${safeRoomId}', this.value)">
+            <input type="text" class="table-input" id="remark-input-${room.id}" placeholder="Add remarks / notes..." value="${escapeHtml(state.customRemark)}" oninput="onRemarkChange(${room.id}, this.value)">
           </td>
           <td>
-            <span id="timestamp-${safeRoomId}" style="font-size:0.8rem; color:var(--text-muted); font-family:monospace;">
+            <span id="timestamp-${room.id}" style="font-size:0.8rem; color:var(--text-muted); font-family:monospace;">
               ${state.timestamp ? formatTime12Hr(state.timestamp) : '—'}
             </span>
           </td>
@@ -3252,36 +2721,7 @@ function doGet(e) {
       updateProgress();
     }
 
-    // Colour coding:
-    //   green  = Good / no issue
-    //   red    = checked and Jabra not visible ("no vision") or remark contains "*"
-    //   yellow = checked with any other remark (e.g. occupied but Jabra is visible)
-    function getSeverity(status, remark) {
-      if (status === 'PASS') return 'green';
-      if (status !== 'FAIL') return null;
-      const r = String(remark || '').toLowerCase();
-      if (r.includes('*') || r.includes('no vision')) return 'red';
-      return 'yellow';
-    }
-
-    function getRowClass(status, remark) {
-      const sev = getSeverity(status, remark);
-      return sev === 'green' ? 'row-passed' : sev === 'red' ? 'row-issue' : sev === 'yellow' ? 'row-warn' : '';
-    }
-
-    function refreshRowSeverity(roomId) {
-      const st = checklistState[roomId];
-      const tr = document.getElementById(`room-row-${roomId}`);
-      if (!st || !tr) return;
-      tr.className = getRowClass(st.status, st.customRemark);
-      const btn = document.getElementById(`fail-btn-${roomId}`);
-      if (btn) btn.classList.toggle('sev-yellow', getSeverity(st.status, st.customRemark) === 'yellow');
-    }
-
     function setRowStatus(roomId, status) {
-      if (!checklistState[roomId]) {
-        checklistState[roomId] = { status: null, timestamp: '', presetRemark: '', customRemark: '' };
-      }
       const st = checklistState[roomId];
       st.status = status;
       if (!st.timestamp) {
@@ -3304,7 +2744,6 @@ function doGet(e) {
     }
 
     function clearRowStatus(roomId) {
-      if (!checklistState[roomId]) return;
       checklistState[roomId].status = null;
       checklistState[roomId].timestamp = '';
       checklistState[roomId].customRemark = '';
@@ -3314,9 +2753,6 @@ function doGet(e) {
     }
 
     function onPresetChange(roomId, value) {
-      if (!checklistState[roomId]) {
-        checklistState[roomId] = { status: null, timestamp: '', presetRemark: '', customRemark: '' };
-      }
       checklistState[roomId].presetRemark = value;
       if (value) {
         checklistState[roomId].customRemark = value;
@@ -3330,11 +2766,7 @@ function doGet(e) {
     }
 
     function onRemarkChange(roomId, value) {
-      if (!checklistState[roomId]) {
-        checklistState[roomId] = { status: null, timestamp: '', presetRemark: '', customRemark: '' };
-      }
       checklistState[roomId].customRemark = value;
-      refreshRowSeverity(roomId);
       saveDraft();
     }
 
@@ -3370,22 +2802,17 @@ function doGet(e) {
     }
 
     function updateProgress() {
-      const total = (ROOMS_DATA || []).length;
+      const total = ROOMS_DATA.length;
       let completed = 0;
       Object.values(checklistState).forEach(st => {
-        if (st && st.status !== null) completed++;
+        if (st.status !== null) completed++;
       });
 
-      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-      const progressText = document.getElementById('progressText');
-      const progressPercent = document.getElementById('progressPercent');
-      const progressBarFill = document.getElementById('progressBarFill');
-      const badgePending = document.getElementById('badgePending');
-
-      if (progressText) progressText.innerText = `${completed} / ${total} Completed`;
-      if (progressPercent) progressPercent.innerText = `${pct}%`;
-      if (progressBarFill) progressBarFill.style.width = `${pct}%`;
-      if (badgePending) badgePending.innerText = `${Math.max(0, total - completed)} pending`;
+      const pct = Math.round((completed / total) * 100);
+      document.getElementById('progressText').innerText = `${completed} / ${total} Completed`;
+      document.getElementById('progressPercent').innerText = `${pct}%`;
+      document.getElementById('progressBarFill').style.width = `${pct}%`;
+      document.getElementById('badgePending').innerText = `${total - completed} pending`;
     }
 
     function onSiteChange(siteKey) {
@@ -3405,17 +2832,9 @@ function doGet(e) {
     function updateSiteView(siteKey) {
       const floorsBadge = document.getElementById('siteFloorsBadge');
       if (floorsBadge) {
-        if (ROOMS_DATA && ROOMS_DATA.length > 0) {
-          if (siteKey === 'UPA') {
-            const bldgs = [...new Set(ROOMS_DATA.map(r => r.building).filter(Boolean))];
-            floorsBadge.innerText = bldgs.join('.');
-          } else {
-            const floors = [...new Set(ROOMS_DATA.map(r => r.floor ? (r.floor === 'G' ? 'GF' : r.floor + 'F') : '').filter(Boolean))];
-            floorsBadge.innerText = floors.join('.');
-          }
-        } else {
-          floorsBadge.innerText = '0 rooms';
-        }
+        if (siteKey === '1800') floorsBadge.innerText = '5F.7F.8F';
+        else if (siteKey === 'UPA') floorsBadge.innerText = 'UPAE.UPAJ.UPAM';
+        else if (siteKey === 'NAGA') floorsBadge.innerText = '4F';
       }
       renderFilterButtons();
     }
@@ -3638,66 +3057,8 @@ function doGet(e) {
       }
     }
 
-    // ==========================================
-    // NETWORK CONNECTIVITY CHECK
-    // ==========================================
-    async function checkNetworkConnection() {
-      // 1. Browser offline flag
-      if (typeof navigator !== 'undefined' && 'onLine' in navigator && !navigator.onLine) {
-        return false;
-      }
-
-      // 2. Active network connectivity probe
-      const url = getGoogleSheetUrl();
-      if (url) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          await fetch(url, {
-            method: 'HEAD',
-            mode: 'no-cors',
-            cache: 'no-store',
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          return true;
-        } catch (e) {
-          if (e.name === 'AbortError' || (typeof navigator !== 'undefined' && !navigator.onLine)) {
-            return false;
-          }
-        }
-      } else {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000);
-          await fetch('https://www.google.com/favicon.ico', {
-            method: 'HEAD',
-            mode: 'no-cors',
-            cache: 'no-store',
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          return true;
-        } catch (e) {
-          if (e.name === 'AbortError' || (typeof navigator !== 'undefined' && !navigator.onLine)) {
-            return false;
-          }
-        }
-      }
-
-      return typeof navigator === 'undefined' || navigator.onLine !== false;
-    }
-
     // Submit Checklist
     async function submitChecklist() {
-      // Check network connection first
-      const isConnected = await checkNetworkConnection();
-      if (!isConnected) {
-        showToast("⚠️ No internet connection! Please check your network.", 4000);
-        alert("⚠️ No Network Connection Detected!\n\nYour device appears to be offline. Please connect to Wi-Fi or mobile data before submitting to ensure your inspection syncs to the database.");
-        return;
-      }
-
       const rawDateVal = document.getElementById('inspectionDate').value.trim();
       const timeVal = document.getElementById('inspectionTime').value;
       const inspector = document.getElementById('inspectorName').value.trim();
@@ -3764,8 +3125,8 @@ function doGet(e) {
       const recordId = isEditing ? currentEditingRecordId : ('REC-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
 
       const confirmMsg = isEditing
-        ? `Are you sure you want to update this inspection record (${recordId})?\n\n- Inspector: ${inspector}\n- Date: ${dateVal} ${formattedTimeVal}\n- Checked Rooms: ${checkedCount} / ${ROOMS_DATA.length}\n- Remarks: ${issueCount}`
-        : `Are you sure you want to submit this checklist?\n\n- Inspector: ${inspector}\n- Date: ${dateVal} ${formattedTimeVal}\n- Checked Rooms: ${checkedCount} / ${ROOMS_DATA.length}\n- Remarks: ${issueCount}`;
+        ? `Are you sure you want to update this inspection record (${recordId})?\n\n- Inspector: ${inspector}\n- Date: ${dateVal} ${formattedTimeVal}\n- Checked Rooms: ${checkedCount} / ${ROOMS_DATA.length}\n- Issues Found: ${issueCount}`
+        : `Are you sure you want to submit this checklist?\n\n- Inspector: ${inspector}\n- Date: ${dateVal} ${formattedTimeVal}\n- Checked Rooms: ${checkedCount} / ${ROOMS_DATA.length}\n- Issues Found: ${issueCount}`;
 
       if (!confirm(confirmMsg)) {
         return;
@@ -3827,14 +3188,9 @@ function doGet(e) {
       renderTable();
 
       updateRecordsBadge();
-      if (isEditing && issueCount === 0) {
-        cancelServerEmailAlert(recordId);
-        showToast(`Inspection record updated — all rooms good, email alert stopped.`);
-      } else {
-        showToast(isEditing ? `Inspection record updated successfully!` : `Data submitted & recorded! (${checkedCount} rooms recorded)`);
-      }
+      showToast(isEditing ? `Inspection record updated successfully!` : `Data submitted & recorded! (${checkedCount} rooms recorded)`);
 
-      // Schedule server-side email alert (cancels previous alert if all rooms are now Good)
+      // Schedule server-side email alert (works even when tab/app is closed)
       scheduleServerEmailAlert(record);
       // Also schedule in-browser modal as fallback when tab stays open
       scheduleRemarksNotification(record);
@@ -4050,7 +3406,7 @@ function doGet(e) {
             </div>
             <div style="display:flex; gap:0.5rem; align-items:center;">
               <button class="pill-badge pill-success pill-sort-btn" style="border:none;cursor:pointer;" onclick="sortCardDetails('${recId}','PASS')" title="Click to show Passed rooms first">${rec.passedCount || 0} Passed</button>
-              ${(rec.issueCount && rec.issueCount > 0) ? `<button class="pill-badge pill-sort-btn" style="background:#fee2e2;color:#991b1b;border:none;cursor:pointer;" onclick="sortCardDetails('${recId}','FAIL')" title="Click to show Remarked rooms first">${rec.issueCount} Remarked</button>` : ''}
+              ${(rec.issueCount && rec.issueCount > 0) ? `<button class="pill-badge pill-sort-btn" style="background:#fee2e2;color:#991b1b;border:none;cursor:pointer;" onclick="sortCardDetails('${recId}','FAIL')" title="Click to show In Condition first">${rec.issueCount} In Condition</button>` : ''}
               <button class="btn btn-sm btn-outline-primary" onclick="editRecord('${recId}')" title="Load into checklist to edit or recheck">✏️ Edit / Recheck</button>
               <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('${recId}')">Delete</button>
             </div>
@@ -4078,14 +3434,11 @@ function doGet(e) {
     }
 
     function buildDetailRow(d) {
-      const sev = getSeverity(d.status, d.remark);
-      const statusBadge = sev === 'green'
-        ? '<span class="pill-badge pill-success">Good</span>'
-        : (sev === 'red'
-          ? '<span class="pill-badge pill-danger">Checked</span>'
-          : (sev === 'yellow'
-            ? '<span class="pill-badge pill-warning">Checked</span>'
-            : '<span class="pill-badge" style="background:#f1f5f9;color:#64748b;">Unchecked</span>'));
+      const statusBadge = d.status === 'PASS'
+        ? '<span class="pill-badge pill-success">✓ Good</span>'
+        : (d.status === 'FAIL'
+          ? '<span class="pill-badge" style="background:#fee2e2;color:#991b1b;">✗ In Condition</span>'
+          : '<span class="pill-badge" style="background:#f1f5f9;color:#64748b;">Unchecked</span>');
       return `
         <tr style="font-size:0.85rem;">
           <td><strong>${escapeHtml(d.spaceName)}</strong></td>
@@ -4106,10 +3459,10 @@ function doGet(e) {
           return (order[a.status] ?? 2) - (order[b.status] ?? 2);
         });
       } else if (sortMode === 'FAIL') {
-        // Sort by colour: red first, then yellow, then green, then unchecked
-        const colourOrder = { red: 0, yellow: 1, green: 2 };
-        const rank = d => colourOrder[getSeverity(d.status, d.remark)] ?? 3;
-        sorted = [...details].sort((a, b) => rank(a) - rank(b));
+        sorted = [...details].sort((a, b) => {
+          const order = { FAIL: 0, PASS: 1, UNCHECKED: 2 };
+          return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+        });
       } else {
         sorted = details; // original order
       }
@@ -4145,7 +3498,7 @@ function doGet(e) {
       renderCardTbody(recId, details, newSort);
       showToast(newSort === 'all'
         ? 'Showing all rooms (original order)'
-        : `Sorted: ${newSort === 'PASS' ? 'Passed' : 'Red → Yellow → Green'}`);
+        : `Sorted: ${newSort === 'PASS' ? 'Passed' : 'Issues'} first`);
     }
 
     function editRecord(recId) {
@@ -4156,15 +3509,8 @@ function doGet(e) {
         return;
       }
 
-      // Immediately cancel any pending server-side email alert and in-browser timer for this record
+      // Cancel any pending server-side email alert for this record
       cancelServerEmailAlert(recId);
-      const recSite = rec.site || 'unknown';
-      if (_remarksNotifTimers[recSite]) {
-        clearTimeout(_remarksNotifTimers[recSite]);
-        delete _remarksNotifTimers[recSite];
-      }
-      delete _remarksNotifDataMap[recSite];
-      dismissRemarksNotif();
 
       currentEditingRecordId = rec.id;
 
@@ -4437,29 +3783,19 @@ function doGet(e) {
 
     function scheduleServerEmailAlert(record) {
       const url = getGoogleSheetUrl();
-      const site = record.site || 'unknown';
-      const remarkedRooms = (record.details || []).filter(d => d.status === 'FAIL');
-
-      // If the edited/updated record now has NO remarked rooms, stop/cancel the alert email!
-      // A newer submission for this site also cancels any pending alert for the same site.
-      if (!remarkedRooms.length) {
-        cancelServerEmailAlert(record.id, site);
-        if (_lastScheduledAlertBySite[site] === record.id) {
-          delete _lastScheduledAlertBySite[site];
-        }
-        return;
-      }
-
       if (!url) return;
+
+      const remarkedRooms = (record.details || []).filter(d => d.status === 'FAIL');
+      if (!remarkedRooms.length) return;
 
       const inspectors = getInspectors();
       const match = inspectors.find(ins => ins.name.toLowerCase() === (record.inspector || '').toLowerCase());
       const toEmail = (match && match.email) ? match.email : '';
       if (!toEmail) { showToast('⚠️ Inspector has no email — add one in Settings to enable email alerts.', 6000); return; }
 
+      const site = record.site || 'unknown';
+
       // Cancel the previous pending alert for this site before scheduling a new one
-      // (Skip when it is the same record: the server supersedes its own earlier pending alert, and an
-      // async cancel could otherwise arrive after the new alert is registered and wrongly cancel it.)
       if (_lastScheduledAlertBySite[site] && _lastScheduledAlertBySite[site] !== record.id) {
         cancelServerEmailAlert(_lastScheduledAlertBySite[site]);
       }
@@ -4469,7 +3805,6 @@ function doGet(e) {
       const params = new URLSearchParams({
         action: 'SCHEDULE_EMAIL_ALERT',
         recordId: record.id,
-        site: site,
         inspector: record.inspector || '',
         toEmail: toEmail,
         date: record.date || '',
@@ -4481,32 +3816,10 @@ function doGet(e) {
       showToast(`✅ Email alert scheduled — inspector will be notified in ${delay} min${delay !== 1 ? 's' : ''}.`, 5000);
     }
 
-    function cancelServerEmailAlert(recordId, site) {
-      if (!recordId) return;
+    function cancelServerEmailAlert(recordId) {
       const url = getGoogleSheetUrl();
       if (!url) return;
-
-      // 1. Post to doPost (immediately reaches spreadsheet)
-      try {
-        fetch(url, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'CANCEL_EMAIL_ALERT', recordId: recordId, site: site || '' })
-        }).catch(() => {});
-      } catch(e) {}
-
-      // 2. Get to doGet
-      const params = new URLSearchParams({ action: 'CANCEL_EMAIL_ALERT', recordId: recordId, site: site || '' });
-      try {
-        fetch(url + '?' + params.toString(), {
-          method: 'GET',
-          mode: 'no-cors',
-          cache: 'no-store'
-        }).catch(() => {});
-      } catch(e) {}
-
-      // 3. Form submit fallback
+      const params = new URLSearchParams({ action: 'CANCEL_EMAIL_ALERT', recordId: recordId });
       fireAndForgetGet(url, params);
     }
 
@@ -4613,18 +3926,11 @@ function doGet(e) {
     let _remarksNotifData = null; // holds the currently displayed notification's data
 
     function scheduleRemarksNotification(record) {
-      const site = record.site || 'unknown';
+      // Only notify for today's records that have FAIL rooms with remarks
       const remarkedRooms = (record.details || []).filter(d => d.status === 'FAIL');
+      if (!remarkedRooms.length) return;
 
-      // If the record has no Remarks (all good or edited to no Remarks), stop in-browser reminder!
-      if (!remarkedRooms.length) {
-        if (_remarksNotifTimers[site]) {
-          clearTimeout(_remarksNotifTimers[site]);
-          delete _remarksNotifTimers[site];
-        }
-        delete _remarksNotifDataMap[site];
-        return;
-      }
+      const site = record.site || 'unknown';
 
       // Cancel any previous pending notification for this site
       if (_remarksNotifTimers[site]) clearTimeout(_remarksNotifTimers[site]);
@@ -4638,24 +3944,11 @@ function doGet(e) {
     }
 
     function showRemarksNotif(data) {
-      if (!data || !data.record) return;
-      const rec = data.record;
-
-      // Check with the latest saved records: if this inspection was edited to have 0 Remarks, abort notification
-      const records = getSavedRecords();
-      const latest = records.find(r => r.id === rec.id);
-      if (latest) {
-        const currentRemarked = (latest.details || []).filter(d => d.status === 'FAIL');
-        if (currentRemarked.length === 0) {
-          dismissRemarksNotif();
-          return;
-        }
-      }
-
       const overlay = document.getElementById('remarksNotifOverlay');
       const body = document.getElementById('remarksNotifBody');
       if (!overlay || !body) return;
 
+      const rec = data.record;
       const rooms = data.remarkedRooms;
       const roomList = rooms.map(d => `• ${d.spaceName}${d.remark ? ': ' + d.remark : ''}`).join('\n');
 
@@ -4705,7 +3998,6 @@ function doGet(e) {
 
     function showToast(msg, duration) {
       const toast = document.getElementById('toastMessage');
-      if (!toast) return;
       toast.innerText = msg;
       toast.style.display = 'block';
       if (toast._hideTimer) clearTimeout(toast._hideTimer);
@@ -4734,19 +4026,6 @@ function doGet(e) {
           .catch(err => console.warn('Service Worker registration failed:', err));
       });
     }
-
-    window.addEventListener('offline', () => {
-      showToast("⚠️ Device is offline. Network connection lost.", 4000);
-      const dot = document.getElementById('syncDot');
-      const statusText = document.getElementById('gsheetStatusText');
-      if (dot) dot.className = 'sync-dot offline';
-      if (statusText) statusText.innerText = 'Offline (No Connection)';
-    });
-
-    window.addEventListener('online', () => {
-      showToast("🌐 Network connected!", 3000);
-      loadGoogleSheetConfig();
-    });
 
     window.addEventListener('DOMContentLoaded', init);
   </script>
